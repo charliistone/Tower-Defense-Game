@@ -1,4 +1,4 @@
-# TOWER DEFENSE: Frontiers
+# Siege of Gondor
 
 ## Project Overview
 This project is a complete, playable Tower Defense game developed for the SENG479 Game Programming course. It is built from the ground up using C/C++ and the Raylib library, focusing on core game programming concepts including game loops, rendering, input handling, and game state management.
