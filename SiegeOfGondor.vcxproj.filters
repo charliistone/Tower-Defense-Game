@@ -17,9 +17,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Projectile.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\tower.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>

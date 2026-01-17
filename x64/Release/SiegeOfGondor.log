@@ -1,7 +1,10 @@
 ﻿  main.cpp
+  tower.cpp
+C:\Users\hp\Documents\SiegeOfGondor\SiegeOfGondor\src\tower.cpp(90,71): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\Documents\SiegeOfGondor\SiegeOfGondor\src\tower.cpp(90,54): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Generating code
-  1 of 312 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
+  29 of 346 functions ( 8.4%) were compiled, the rest were copied from previous compilation.
+    4 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SiegeOfGondor.vcxproj -> C:\Users\hp\Documents\SiegeOfGondor\x64\Release\SiegeOfGondor.exe
