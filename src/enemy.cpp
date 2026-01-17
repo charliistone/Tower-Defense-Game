@@ -1,136 +1,125 @@
 #include "Enemy.h"
-#include "raymath.h"
 
-Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D texture)
-    : type(type), pathPoints(path), texture(texture),
-    currentPathIndex(0), alive(true), reachedEnd(false),
-    facingDirection(0) // Default face Down
+Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex)
+    : position({ 0,0 }), path(path), currentPoint(0), texture(tex), type(type),
+    alive(true), health(0), maxHealth(0), speed(0.0f), distanceTraveled(0.0f),
+    manaReward(0), stunTimer(0.0f), slowTimer(0.0f), slowFactor(1.0f), frozen(false),
+    currentFrame(0), animTimer(0.0f), facing(0)
 {
-    InitStatsByType();
-    position = (*pathPoints)[0];
-}
+    if (path && !path->empty()) position = (*path)[0];
 
-void Enemy::InitStatsByType() {
-    switch (type) {
-    case EnemyType::ORC:
-        maxHp = 30;
-        baseSpeed = 100.0f; // Pixels per second
-        radius = 40.0f;
-        break;
-    case EnemyType::URUK:
-        maxHp = 80;
-        baseSpeed = 80.0f;
-        radius = 45.0f;
-        break;
-    case EnemyType::TROLL:
-        maxHp = 500;
-        baseSpeed = 40.0f;
-        radius = 60.0f;
-        break;
+    // Stats
+    if (type == EnemyType::ORC) {
+        maxHealth = 10; speed = 100.0f; manaReward = 2;
     }
-    hp = maxHp;
-    speed = baseSpeed; // Initialize current speed
-}
+    else if (type == EnemyType::URUK) {
+        maxHealth = 30; speed = 80.0f; manaReward = 5;
+    }
+    else if (type == EnemyType::TROLL) {
+        maxHealth = 150; speed = 40.0f; manaReward = 20;
+    }
+    health = maxHealth;
 
-void Enemy::ApplySlow(float value, float duration) {
-    // Add the slow effect to the list
-    effects.push_back({ StatusEffectType::SLOW, value, duration });
-}
+    // --- SPRITE HESABI ---
+    // Spreadsheet 3 sütun (hareket) ve 4 satýr (yön) varsayýlýyor.
+    frameWidth = texture.width / 3;
+    frameHeight = texture.height / 4;
 
-void Enemy::TakeDamage(int dmg) {
-    hp -= dmg;
-    if (hp <= 0) {
-        alive = false;
+    // Eðer görsel kare ise (Spreadsheet deðilse) düzelt
+    if (texture.width == texture.height) {
+        frameWidth = texture.width;
+        frameHeight = texture.height;
     }
 }
 
 void Enemy::Update(float dt) {
     if (!alive) return;
 
-    // --- STEP 1: HANDLE STATUS EFFECTS ---
-    speed = baseSpeed; // Reset to normal speed first
+    if (stunTimer > 0.0f) { stunTimer -= dt; return; }
 
-    for (int i = effects.size() - 1; i >= 0; i--) {
-        effects[i].duration -= dt;
-
-        // Apply the slow
-        if (effects[i].type == StatusEffectType::SLOW) {
-            speed *= effects[i].value;
-        }
-
-        // Remove if time is up
-        if (effects[i].duration <= 0) {
-            effects.erase(effects.begin() + i);
-        }
+    float currentSpeed = speed;
+    if (slowTimer > 0.0f) {
+        slowTimer -= dt;
+        currentSpeed = speed * slowFactor;
+        frozen = true;
+    }
+    else {
+        frozen = false;
+        slowFactor = 1.0f;
     }
 
-    // --- STEP 2: MOVEMENT ---
-    if (currentPathIndex < pathPoints->size() - 1) {
-        Vector2 target = (*pathPoints)[currentPathIndex + 1];
-        Vector2 dir = Vector2Subtract(target, position);
-        float dist = Vector2Length(dir);
+    if (path && currentPoint < path->size() - 1) {
+        Vector2 target = (*path)[currentPoint + 1];
+        Vector2 direction = Vector2Normalize(Vector2Subtract(target, position));
 
-        // Normalize direction
-        dir = Vector2Normalize(dir);
-
-        // --- STEP 3: ANIMATION DIRECTION ---
-        // Determine which way we are looking based on movement vector
-        if (fabs(dir.x) > fabs(dir.y)) {
-            // Horizontal
-            if (dir.x > 0) facingDirection = 2; // Right
-            else facingDirection = 1;           // Left
+        // --- YÖN HESAPLAMA (MOONWALK FIX) ---
+        if (fabs(direction.x) > fabs(direction.y)) {
+            // Yatay Hareket
+            if (direction.x > 0) facing = 2; // Sað (Genelde Row 2)
+            else facing = 1;                 // Sol  (Genelde Row 1)
         }
         else {
-            // Vertical
-            if (dir.y > 0) facingDirection = 0; // Down
-            else facingDirection = 3;           // Up
+            // Dikey Hareket
+            if (direction.y > 0) facing = 0; // Aþaðý (Genelde Row 0)
+            else facing = 3;                 // Yukarý (Genelde Row 3)
         }
 
-        // Move using the CALCULATED speed (not baseSpeed)
-        float moveAmount = speed * dt;
+        // --- ADIM ANIMASYONU ---
+        animTimer += dt;
+        if (animTimer >= 0.2f) { // Adým hýzý
+            animTimer = 0.0f;
+            currentFrame++;
+            if (currentFrame > 2) currentFrame = 0; // 0-1-2 döngüsü
+        }
 
-        if (dist <= moveAmount) {
-            position = target;
-            currentPathIndex++;
-            if (currentPathIndex >= pathPoints->size() - 1) {
-                reachedEnd = true;
-                alive = false;
-            }
-        }
-        else {
-            position = Vector2Add(position, Vector2Scale(dir, moveAmount));
-        }
+        position = Vector2Add(position, Vector2Scale(direction, currentSpeed * dt));
+
+        if (Vector2Distance(position, target) < 5.0f) currentPoint++;
     }
 }
 
 void Enemy::Draw() const {
     if (!alive) return;
 
-    // --- SPRITE SLICING ---
-    float columns = 4.0f;
-    float rows = 4.0f;
+    float drawSize = 48.0f;
+    if (type == EnemyType::TROLL) drawSize = 64.0f;
 
-    float frameWidth = texture.width / columns;
-    float frameHeight = texture.height / rows;
+    // --- DOÐRU KAREYÝ KESME (CROP) ---
+    // Eðer görsel spreadsheet deðilse (örn: kare ise), kaynak tüm resimdir.
+    Rectangle source;
+    if (texture.width == texture.height) {
+        source = { 0, 0, (float)texture.width, (float)texture.height };
+    }
+    else {
+        // Spreadsheet ise doðru parçayý al
+        source = {
+            (float)currentFrame * frameWidth,
+            (float)facing * frameHeight,
+            (float)frameWidth,
+            (float)frameHeight
+        };
+    }
 
-    // PICK THE ROW BASED ON FACING DIRECTION
-    // 0=Down, 1=Left, 2=Right, 3=Up
-    float currentY = facingDirection * frameHeight;
+    Rectangle dest = { position.x, position.y, drawSize, drawSize };
+    Vector2 origin = { drawSize / 2.0f, drawSize / 2.0f };
 
-    Rectangle sourceRec = { 0.0f, currentY, frameWidth, frameHeight };
-    float scale = 0.75f;
-    Rectangle destRec = {
-        position.x,
-        position.y,
-        frameWidth * scale,
-        frameHeight * scale
-    };
-    Vector2 origin = { (frameWidth * scale) / 2.0f, (frameHeight * scale) / 2.0f };
+    Color tint = WHITE;
+    if (stunTimer > 0.0f) tint = GOLD;
+    else if (frozen) tint = SKYBLUE;
 
-    DrawTexturePro(texture, sourceRec, destRec, origin, 0.0f, WHITE);
+    DrawTexturePro(texture, source, dest, origin, 0.0f, tint);
 
-    // Draw HP Bar
-    float hpPercent = (float)hp / maxHp;
-    DrawRectangle(position.x - 15, position.y - 30, 30, 5, RED);
-    DrawRectangle(position.x - 15, position.y - 30, 30 * hpPercent, 5, GREEN);
+    // Can Barý
+    float pct = (float)health / (float)maxHealth;
+    int barWidth = (int)drawSize;
+    DrawRectangle((int)position.x - barWidth / 2, (int)position.y - (int)(drawSize / 2) - 8, barWidth, 5, RED);
+    DrawRectangle((int)position.x - barWidth / 2, (int)position.y - (int)(drawSize / 2) - 8, (int)(barWidth * pct), 5, GREEN);
 }
+
+void Enemy::TakeDamage(int dmg) {
+    health -= dmg;
+    if (health <= 0) alive = false;
+}
+
+void Enemy::ApplyStun(float duration) { stunTimer = duration; }
+void Enemy::ApplySlow(float factor, float duration) { slowFactor = factor; slowTimer = duration; }

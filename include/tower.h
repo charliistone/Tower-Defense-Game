@@ -16,23 +16,20 @@ public:
 
     void Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile>& projectiles);
     void Draw() const;
-
-    // --- UPGRADE SYSTEM ---
     void Upgrade();
+
     int GetUpgradeCost() const;
     int GetLevel() const { return level; }
-    bool IsClicked(Vector2 mousePos) const;
     int GetCost() const { return cost; }
-
-    // --- MISSING GETTERS (ADD THESE!) ---
-    float GetRange() const { return range; }       // <--- FIXES THE ERROR
-    Vector2 GetPosition() const { return position; } // <--- NEEDED FOR CIRCLE DRAWING
+    bool IsClicked(Vector2 mousePos) const;
+    float GetRange() const { return range; }
+    Vector2 GetPosition() const { return position; }
 
 private:
     Vector2 position;
     Texture2D texture;
-
     TowerType type;
+
     int level;
     float range;
     int damage;

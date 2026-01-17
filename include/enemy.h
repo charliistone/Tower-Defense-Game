@@ -1,72 +1,52 @@
 #pragma once
 #include "raylib.h"
+#include "raymath.h"
 #include <vector>
 
-// Enemy types
-enum class EnemyType {
-    ORC,
-    URUK,
-    TROLL
-};
+// DÝKKAT: Buraya ASLA #include "Enemy.h" EKLEME! Sonsuz döngü yapar.
 
-// Status effect types
-enum class StatusEffectType {
-    SLOW
-};
-
-// Status effect struct
-struct StatusEffect {
-    StatusEffectType type;
-    float value;     // e.g. 0.5 for 50% slow
-    float duration;  // seconds
-};
+enum class EnemyType { ORC, URUK, TROLL };
 
 class Enemy {
 public:
-    Enemy(EnemyType type,
-        std::vector<Vector2>* path,
-        Texture2D texture);
+    Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex);
 
     void Update(float dt);
     void Draw() const;
 
     void TakeDamage(int dmg);
-    void ApplySlow(float value, float duration); // <-- Function to apply slow
+    void ApplyStun(float duration);
+    void ApplySlow(float factor, float duration);
 
     bool IsAlive() const { return alive; }
-    bool ReachedEnd() const { return reachedEnd; }
-
+    bool ReachedEnd() const { return currentPoint >= path->size() - 1; }
     Vector2 GetPosition() const { return position; }
-    float GetRadius() const { return radius; }
-    EnemyType GetType() const { return type; }
+    float GetRadius() const { return 15.0f; }
+    int GetManaReward() const { return manaReward; }
 
 private:
-    void InitStatsByType();
-
-    EnemyType type;
     Vector2 position;
-
-    // MOVEMENT VARIABLES
-    int facingDirection; // 0=Down, 1=Left, 2=Right, 3=Up (NEW)
-    float speed;         // Current speed (affected by slows)
-    float baseSpeed;     // Original speed (max speed)
-
-    // STATS
-    int hp;
-    int maxHp;
-    float radius;
-
-    // PATHFINDING
-    std::vector<Vector2>* pathPoints;
-    int currentPathIndex;
-
-    // STATE
-    bool alive;
-    bool reachedEnd;
-
-    // VISUALS
+    std::vector<Vector2>* path;
+    int currentPoint;
     Texture2D texture;
+    EnemyType type;
 
-    // EFFECTS LIST
-    std::vector<StatusEffect> effects; // List of active effects
+    bool alive;
+    int health;
+    int maxHealth;
+    float speed;
+    float distanceTraveled;
+
+    int manaReward;
+    float stunTimer;
+    float slowTimer;
+    float slowFactor;
+    bool frozen;
+
+    // --- ANIMASYON DEÐÝÞKENLERÝ ---
+    int frameWidth;
+    int frameHeight;
+    int currentFrame;   // Hangi adým karesi? (0, 1, 2)
+    float animTimer;    // Animasyon hýzý
+    int facing;         // Hangi yöne bakýyor? (0:Aþaðý, 1:Sol, 2:Sað, 3:Yukarý)
 };

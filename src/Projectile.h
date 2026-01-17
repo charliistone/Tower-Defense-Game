@@ -1,35 +1,47 @@
 #pragma once
 #include "raylib.h"
+#include "raymath.h"
 
+// --- FIX: ADD "ARROW" HERE ---
 enum class ProjectileType {
-    NORMAL, // Standard Damage
-    ICE     // Low Damage + Slow Effect
+    ARROW,
+    ICE
 };
 
-struct Projectile {
-    Vector2 position;
-    Vector2 velocity;
-    int damage;
-    bool active;
-    ProjectileType type; // <--- NEW: Remembers if it is Ice or Normal
+class Projectile {
+public:
+    Projectile(Vector2 start, Vector2 target, int dmg, ProjectileType t) {
+        position = start;
+        damage = dmg;
+        type = t;
+        active = true;
+        speed = 600.0f; // Speed of the arrow
 
-    Projectile(Vector2 pos, Vector2 vel, int dmg, ProjectileType t)
-        : position(pos), velocity(vel), damage(dmg), active(true), type(t) {
+        Vector2 dir = Vector2Normalize(Vector2Subtract(target, start));
+        velocity = Vector2Scale(dir, speed);
     }
 
     void Update(float dt) {
-        position.x += velocity.x * dt;
-        position.y += velocity.y * dt;
+        position = Vector2Add(position, Vector2Scale(velocity, dt));
 
-        // Deactivate if off-screen (simple optimization)
+        // Simple cleanup if it goes off screen (Optional)
         if (position.x < 0 || position.x > 3000 || position.y < 0 || position.y > 3000) {
             active = false;
         }
     }
 
     void Draw() const {
-        // Draw Ice balls Blue, Arrows Yellow
-        Color c = (type == ProjectileType::ICE) ? SKYBLUE : YELLOW;
+        if (!active) return;
+        Color c = (type == ProjectileType::ICE) ? SKYBLUE : BLACK;
         DrawCircleV(position, 5, c);
     }
+
+    Vector2 position;
+    bool active;
+    int damage;
+    ProjectileType type;
+
+private:
+    Vector2 velocity;
+    float speed;
 };
