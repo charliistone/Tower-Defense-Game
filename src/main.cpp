@@ -4,6 +4,7 @@
 #include "Tower.h"      
 #include "Projectile.h"  
 #include <vector>
+#include <string>
 
 // --- HELPER FUNCTIONS ---
 float GetTowerRange(TowerType type) {
@@ -46,26 +47,44 @@ const int MAX_BLOOD = 100;
 const int COST_GANDALF = 40;
 const int COST_ROHIRRIM = 60;
 
-// --- ROHIRRIM STRUCT ---
+// --- ROHIRRIM STRUCT (MULTI-FRAME UPDATE) ---
 struct Rohirrim {
     Vector2 position;
     std::vector<Vector2>* path;
     int currentPoint;
     bool active;
-    Texture2D texture;
 
-    Rohirrim(std::vector<Vector2>* p, Texture2D tex) {
+    // Animasyon Kareleri (Referans olarak tutuyoruz)
+    const std::vector<Texture2D>* frames;
+
+    float animTimer;
+    int currentFrameIndex;
+
+    Rohirrim(std::vector<Vector2>* p, const std::vector<Texture2D>* animFrames) {
         path = p;
+        frames = animFrames;
+
         currentPoint = (int)path->size() - 1;
         position = (*path)[currentPoint];
         active = true;
-        texture = tex;
+
+        animTimer = 0.0f;
+        currentFrameIndex = 0;
     }
 
     void Update(float dt) {
         if (!active) return;
         float speed = 350.0f;
 
+        // 1. Animasyon Oynat
+        animTimer += dt;
+        if (animTimer >= 0.08f) { // Çok hýzlý koþsun (80ms)
+            animTimer = 0.0f;
+            currentFrameIndex++;
+            if (currentFrameIndex >= frames->size()) currentFrameIndex = 0;
+        }
+
+        // 2. Hareket Et
         if (currentPoint > 0) {
             Vector2 target = (*path)[currentPoint - 1];
             Vector2 dir = Vector2Normalize(Vector2Subtract(target, position));
@@ -79,15 +98,19 @@ struct Rohirrim {
     }
 
     void Draw() {
-        if (!active) return;
-        // Basit tek kare çizimi (Atýn tamamý görünmesi için)
-        // Eðer Rohirrim de spreadsheet ise Enemy mantýðýný buraya da kurabiliriz.
-        // Þimdilik görseli 4'e bölüp ilk parçayý alýyoruz.
-        float frameW = (float)texture.width / 3.0f;
-        if (texture.width == texture.height) frameW = (float)texture.width;
+        if (!active || frames->empty()) return;
 
-        Rectangle source = { 0, 0, frameW, (float)texture.height };
-        DrawTexturePro(texture, source, { position.x, position.y, 48, 48 }, { 24, 24 }, 0.0f, WHITE);
+        Texture2D currentTex = (*frames)[currentFrameIndex];
+
+        // FLIP LOGIC: Resmi ters çevir (Sola baktýr)
+        // width deðerini eksi (-) yaparsak Raylib resmi aynalar.
+        Rectangle source = { 0, 0, -(float)currentTex.width, (float)currentTex.height };
+
+        // Biraz büyüt (80x80)
+        Rectangle dest = { position.x, position.y, 80, 80 };
+        Vector2 origin = { 40, 40 };
+
+        DrawTexturePro(currentTex, source, dest, origin, 0.0f, WHITE);
     }
 };
 
@@ -123,10 +146,15 @@ int main(void)
     Texture2D bg = LoadTexture("assets/sprites/environment/minastirith_bg.png");
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
-
-    // GANDALF & ROHIRRIM
     Texture2D texGandalf = LoadTexture("assets/sprites/gandalf.png");
-    Texture2D texRohirrim = LoadTexture("assets/sprites/towers/gondor_soldier.png");
+
+    // --- NEW: LOAD ROHIRRIM FRAMES ---
+    std::vector<Texture2D> rohirrimFrames;
+    rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop1.png"));
+    rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop2.png"));
+    rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop3.png"));
+    rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop4.png"));
+    rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop5.png"));
 
     std::vector<Enemy> enemies;
     std::vector<Tower> towers;
@@ -150,7 +178,7 @@ int main(void)
         float dt = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
 
-        // --- SKILLS ---
+        // --- SKILL INPUTS ---
         if (IsKeyPressed(KEY_Q)) {
             if (urukBlood >= COST_GANDALF) {
                 urukBlood -= COST_GANDALF;
@@ -161,19 +189,19 @@ int main(void)
         if (IsKeyPressed(KEY_W)) {
             if (urukBlood >= COST_ROHIRRIM) {
                 urukBlood -= COST_ROHIRRIM;
-                riders.emplace_back(pathTop, texRohirrim);
-                riders.emplace_back(pathBottom, texRohirrim);
-                riders.emplace_back(pathTop, texRohirrim);
-                riders.emplace_back(pathBottom, texRohirrim);
+                // Atlarý oluþtururken Frame Listesini gönderiyoruz
+                riders.emplace_back(pathTop, &rohirrimFrames);
+                riders.emplace_back(pathBottom, &rohirrimFrames);
+                riders.emplace_back(pathTop, &rohirrimFrames);
+                riders.emplace_back(pathBottom, &rohirrimFrames);
             }
         }
 
-        // --- TOWER SELECTION ---
+        // --- GAME LOGIC ---
         if (IsKeyPressed(KEY_ONE))   selectedTower = TowerType::ARCHER;
         if (IsKeyPressed(KEY_TWO))   selectedTower = TowerType::MELEE;
         if (IsKeyPressed(KEY_THREE)) selectedTower = TowerType::ICE;
 
-        // --- PLACEMENT ---
         int gridX = (int)(mousePos.x / gridSize) * gridSize;
         int gridY = (int)(mousePos.y / gridSize) * gridSize;
         Vector2 snapPos = { (float)gridX + 32, (float)gridY + 32 };
@@ -209,7 +237,7 @@ int main(void)
             }
         }
 
-        // --- SPAWNING ---
+        // SPAWNING
         if (enemiesSpawned < enemiesPerWave) {
             spawnTimer += dt;
             float delay = (waveNumber > 5) ? 0.6f : 1.2f;
@@ -232,7 +260,7 @@ int main(void)
             }
         }
 
-        // --- UPDATES ---
+        // UPDATE
         for (int i = 0; i < enemies.size(); i++) {
             enemies[i].Update(dt);
             if (!enemies[i].IsAlive()) {
@@ -247,7 +275,7 @@ int main(void)
         for (int i = 0; i < riders.size(); i++) {
             riders[i].Update(dt);
             for (Enemy& e : enemies) {
-                if (e.IsAlive() && CheckCollisionCircles(riders[i].position, 20, e.GetPosition(), 20)) {
+                if (e.IsAlive() && CheckCollisionCircles(riders[i].position, 30, e.GetPosition(), 20)) {
                     e.TakeDamage(100);
                     if (!e.IsAlive()) {
                         urukBlood += e.GetManaReward();
@@ -287,7 +315,6 @@ int main(void)
         ClearBackground(RAYWHITE);
         DrawTexturePro(bg, { 0,0,(float)bg.width,(float)bg.height }, { 0,0,(float)screenWidth,(float)screenHeight }, { 0,0 }, 0, WHITE);
 
-        // Paths & City
         for (auto* path : allPaths) {
             for (size_t i = 0; i < path->size() - 1; i++) {
                 Vector2 start = (*path)[i];
@@ -314,44 +341,22 @@ int main(void)
         for (auto& r : riders) r.Draw();
         for (const auto& p : projectiles) p.Draw();
 
-        // --- GANDALF ANIMASYON (SPREADSHEET FIX) ---
+        // --- GANDALF ANIMASYON (SAFE FIX) ---
         if (flashTimer > 0.0f) {
             flashTimer -= dt;
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(WHITE, flashTimer * 0.4f));
 
-            // --- ÝÞTE BURASI DÜZELTÝLDÝ ---
-            // "Gandalf the White.png" büyük ihtimalle 13x21 gridli bir LPC character sheet.
-            // Eðer tüm resmi görüyorsan, frameWidth/Height yanlýþ hesaplanýyordur.
-            // Burada matematiksel olarak tek bir kareyi (tile) alýyoruz.
+            // LPC SAFE DRAW
+            float cellSize = 64.0f;
+            int animFrame = (int)((1.0f - flashTimer) * 8.0f) % 7;
+            int row = 2;
 
-            int numCols = 13;
-            int numRows = 21;
-            float frameW = (float)texGandalf.width / numCols;
-            float frameH = (float)texGandalf.height / numRows;
-
-            // Animasyon Karesi (0'dan 6'ya kadar oynat)
-            int animFrame = (int)((1.0f - flashTimer) * 10.0f) % 7;
-
-            // Satýr 6 (Spellcast) - Sütun animFrame
-            Rectangle source = {
-                animFrame * frameW,
-                6 * frameH,
-                frameW,
-                frameH
-            };
-
-            // Eðer görsel LPC deðilse ve hala bozuk çýkýyorsa 
-            // bu güvenlik kodu devreye girer:
-            if (texGandalf.width < 200) { // Görsel küçükse sheet deðildir
-                source = { 0, 0, (float)texGandalf.width, (float)texGandalf.height };
-            }
-
+            Rectangle source = { animFrame * cellSize, row * cellSize, cellSize, cellSize };
             DrawTexturePro(texGandalf, source,
-                { (float)screenWidth / 2 - 60, (float)screenHeight / 2 - 80, 120, 120 },
+                { (float)screenWidth / 2 - 64, (float)screenHeight / 2 - 80, 128, 128 },
                 { 0,0 }, 0.0f, Fade(WHITE, flashTimer + 0.5f));
         }
 
-        // UI Ghost
         bool hover = false;
         for (const Tower& t : towers) {
             if (t.IsClicked(mousePos)) {
@@ -382,24 +387,30 @@ int main(void)
         DrawText("[2] Melee", midX + 110, screenHeight - 40, 20, c2);
         DrawText("[3] Ice", midX + 220, screenHeight - 40, 20, c3);
 
-        int rightX = screenWidth - 380;
+        int rightX = screenWidth - 450;
         int barY = screenHeight - 35;
-        DrawRectangleLines(rightX, barY, 150, 15, GRAY);
+
+        DrawRectangleLines(rightX, barY, 120, 15, GRAY);
         float bloodPct = (float)urukBlood / MAX_BLOOD;
-        DrawRectangle(rightX + 1, barY + 1, (int)(148 * bloodPct), 13, MAROON);
-        DrawText("URUK BLOOD", rightX + 50, barY + 2, 10, WHITE);
+        DrawRectangle(rightX + 1, barY + 1, (int)(118 * bloodPct), 13, MAROON);
+        DrawText("BLOOD", rightX + 40, barY + 3, 10, WHITE);
 
         Color cQ = (urukBlood >= COST_GANDALF) ? WHITE : DARKGRAY;
         Color cW = (urukBlood >= COST_ROHIRRIM) ? WHITE : DARKGRAY;
-        DrawText("[Q] GANDALF'S LIGHT", rightX + 160, barY - 5, 20, cQ);
-        DrawText("[W] ROHIRRIM CHARGE", rightX + 380, barY - 5, 20, cW);
+
+        DrawText("[Q] GANDALF", rightX + 130, barY - 5, 20, cQ);
+        DrawText("[W] ROHIRRIM", rightX + 280, barY - 5, 20, cW);
 
         EndDrawing();
     }
 
     UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texArcher);
     UnloadTexture(bg); UnloadTexture(texRoad); UnloadTexture(texCity);
-    UnloadTexture(texGandalf); UnloadTexture(texRohirrim);
+    UnloadTexture(texGandalf);
+
+    // Unload Rohirrim
+    for (auto& tex : rohirrimFrames) UnloadTexture(tex);
+
     delete pathTop; delete pathBottom;
     CloseWindow();
     return 0;
