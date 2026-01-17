@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "Enemy.h"
 #include "Tower.h"      
+#include "IntroScreen.h"
 #include "Projectile.h"  
 #include <vector>
 
@@ -12,6 +13,23 @@ int main(void)
     const int screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Siege of Gondor - Tower Defense");
     SetTargetFPS(60);
+
+    // -------- INTRO SCREEN --------
+    IntroScreen intro;
+    intro.Init();
+
+    while (!WindowShouldClose() && !intro.IsFinished())
+    {
+        intro.Update();
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        intro.Draw();
+        EndDrawing();
+    }
+
+    intro.Unload();
+
 
     // --- DEFINE PATH ---
     std::vector<Vector2>* path = new std::vector<Vector2>();

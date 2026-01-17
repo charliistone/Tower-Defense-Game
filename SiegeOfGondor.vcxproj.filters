@@ -23,6 +23,9 @@
     <ClCompile Include="src\tower.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+	  <ClCompile Include="src\IntroScreen.cpp">
+		  <Filter>Resource Files</Filter>
+	  </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Projectile.h">
@@ -43,5 +46,8 @@
     <ClInclude Include="include\tower.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+	  <ClInclude Include="include\IntroScreen.h">
+		  <Filter>Header Files</Filter>
+	  </ClInclude>
   </ItemGroup>
 </Project>
