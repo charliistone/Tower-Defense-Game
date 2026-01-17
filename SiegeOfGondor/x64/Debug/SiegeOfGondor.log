@@ -1,3 +1,11 @@
-﻿  IntroScreen.cpp
+﻿  main.cpp
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(252,97): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(252,82): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(253,67): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(253,48): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(260,47): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(260,36): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(261,81): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BTbar\Desktop\Tower-Defense-Game-main\src\main.cpp(261,67): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
 LINK : warning LNK4098: defaultlib 'MSVCRT' diğer kitaplıkların kullanımı ile çakışıyor; /NODEFAULTLIB:library kullanın
-  SiegeOfGondor.vcxproj -> C:\Users\BTbar\Desktop\tower defense\x64\Debug\SiegeOfGondor.exe
+  SiegeOfGondor.vcxproj -> C:\Users\BTbar\Desktop\Tower-Defense-Game-main\x64\Debug\SiegeOfGondor.exe

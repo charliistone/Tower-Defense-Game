@@ -118,8 +118,14 @@ void Enemy::Draw() const {
     float currentY = facingDirection * frameHeight;
 
     Rectangle sourceRec = { 0.0f, currentY, frameWidth, frameHeight };
-    Rectangle destRec = { position.x, position.y, frameWidth, frameHeight };
-    Vector2 origin = { frameWidth / 2.0f, frameHeight / 2.0f };
+    float scale = 0.75f;
+    Rectangle destRec = {
+        position.x,
+        position.y,
+        frameWidth * scale,
+        frameHeight * scale
+    };
+    Vector2 origin = { (frameWidth * scale) / 2.0f, (frameHeight * scale) / 2.0f };
 
     DrawTexturePro(texture, sourceRec, destRec, origin, 0.0f, WHITE);
 

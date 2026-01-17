@@ -19,11 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="IntroScreen.cpp" />
     <ClCompile Include="src\enemy.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Projectile.cpp" />
     <ClCompile Include="src\tower.cpp" />
-	<ClCompile Include="src\IntroScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\enemy.h" />
@@ -31,8 +30,8 @@
     <ClInclude Include="include\raymath.h" />
     <ClInclude Include="include\rlgl.h" />
     <ClInclude Include="include\tower.h" />
+    <ClInclude Include="IntroScreen.h" />
     <ClInclude Include="src\Projectile.h" />
-	<ClInclude Include="include\IntroScreen.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
