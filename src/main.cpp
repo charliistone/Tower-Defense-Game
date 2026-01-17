@@ -47,14 +47,14 @@ const int MAX_BLOOD = 100;
 const int COST_GANDALF = 40;
 const int COST_ROHIRRIM = 60;
 
-// --- ROHIRRIM STRUCT (MULTI-FRAME UPDATE) ---
+// --- ROHIRRIM STRUCT ---
 struct Rohirrim {
     Vector2 position;
     std::vector<Vector2>* path;
     int currentPoint;
     bool active;
 
-    // Animasyon Kareleri (Referans olarak tutuyoruz)
+    // Animasyon Kareleri
     const std::vector<Texture2D>* frames;
 
     float animTimer;
@@ -76,15 +76,15 @@ struct Rohirrim {
         if (!active) return;
         float speed = 350.0f;
 
-        // 1. Animasyon Oynat
+        // 1. Animasyon
         animTimer += dt;
-        if (animTimer >= 0.08f) { // Çok hýzlý koþsun (80ms)
+        if (animTimer >= 0.08f) {
             animTimer = 0.0f;
             currentFrameIndex++;
             if (currentFrameIndex >= frames->size()) currentFrameIndex = 0;
         }
 
-        // 2. Hareket Et
+        // 2. Hareket
         if (currentPoint > 0) {
             Vector2 target = (*path)[currentPoint - 1];
             Vector2 dir = Vector2Normalize(Vector2Subtract(target, position));
@@ -101,12 +101,7 @@ struct Rohirrim {
         if (!active || frames->empty()) return;
 
         Texture2D currentTex = (*frames)[currentFrameIndex];
-
-        // FLIP LOGIC: Resmi ters çevir (Sola baktýr)
-        // width deðerini eksi (-) yaparsak Raylib resmi aynalar.
         Rectangle source = { 0, 0, -(float)currentTex.width, (float)currentTex.height };
-
-        // Biraz büyüt (80x80)
         Rectangle dest = { position.x, position.y, 80, 80 };
         Vector2 origin = { 40, 40 };
 
@@ -142,13 +137,17 @@ int main(void)
     Texture2D texOrc = LoadTexture("assets/sprites/enemies/orc.png");
     Texture2D texUruk = LoadTexture("assets/sprites/enemies/uruk.png");
     Texture2D texTroll = LoadTexture("assets/sprites/enemies/troll.png");
-    Texture2D texArcher = LoadTexture("assets/sprites/towers/gondor_soldier.png");
     Texture2D bg = LoadTexture("assets/sprites/environment/minastirith_bg.png");
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
     Texture2D texGandalf = LoadTexture("assets/sprites/gandalf.png");
 
-    // --- NEW: LOAD ROHIRRIM FRAMES ---
+    // --- YENÝ KULELERÝ YÜKLE ---
+    Texture2D texTowerArcher = LoadTexture("assets/sprites/towers/tower_archer.png");
+    Texture2D texTowerMelee = LoadTexture("assets/sprites/towers/tower_melee.png");
+    Texture2D texTowerIce = LoadTexture("assets/sprites/towers/tower_ice.png");
+
+    // --- ROHIRRIM FRAMES ---
     std::vector<Texture2D> rohirrimFrames;
     rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop1.png"));
     rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop2.png"));
@@ -189,7 +188,6 @@ int main(void)
         if (IsKeyPressed(KEY_W)) {
             if (urukBlood >= COST_ROHIRRIM) {
                 urukBlood -= COST_ROHIRRIM;
-                // Atlarý oluþtururken Frame Listesini gönderiyoruz
                 riders.emplace_back(pathTop, &rohirrimFrames);
                 riders.emplace_back(pathBottom, &rohirrimFrames);
                 riders.emplace_back(pathTop, &rohirrimFrames);
@@ -232,7 +230,12 @@ int main(void)
                 }
             }
             if (!clickedExisting && isValidPlacement) {
-                towers.emplace_back(snapPos, texArcher, selectedTower);
+                // --- KULE TÝPÝNE GÖRE RESÝM SEÇ ---
+                Texture2D textureToUse = texTowerArcher;
+                if (selectedTower == TowerType::MELEE) textureToUse = texTowerMelee;
+                else if (selectedTower == TowerType::ICE) textureToUse = texTowerIce;
+
+                towers.emplace_back(snapPos, textureToUse, selectedTower);
                 gold -= GetTowerCost(selectedTower);
             }
         }
@@ -260,7 +263,7 @@ int main(void)
             }
         }
 
-        // UPDATE
+        // UPDATES
         for (int i = 0; i < enemies.size(); i++) {
             enemies[i].Update(dt);
             if (!enemies[i].IsAlive()) {
@@ -341,12 +344,11 @@ int main(void)
         for (auto& r : riders) r.Draw();
         for (const auto& p : projectiles) p.Draw();
 
-        // --- GANDALF ANIMASYON (SAFE FIX) ---
+        // --- GANDALF ANIMASYON ---
         if (flashTimer > 0.0f) {
             flashTimer -= dt;
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(WHITE, flashTimer * 0.4f));
 
-            // LPC SAFE DRAW
             float cellSize = 64.0f;
             int animFrame = (int)((1.0f - flashTimer) * 8.0f) % 7;
             int row = 2;
@@ -404,11 +406,16 @@ int main(void)
         EndDrawing();
     }
 
-    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texArcher);
+    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll);
+
+    // --- YENÝ TEXTURELARI BOÞALT ---
+    UnloadTexture(texTowerArcher);
+    UnloadTexture(texTowerMelee);
+    UnloadTexture(texTowerIce);
+
     UnloadTexture(bg); UnloadTexture(texRoad); UnloadTexture(texCity);
     UnloadTexture(texGandalf);
 
-    // Unload Rohirrim
     for (auto& tex : rohirrimFrames) UnloadTexture(tex);
 
     delete pathTop; delete pathBottom;
