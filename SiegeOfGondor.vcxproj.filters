@@ -43,8 +43,8 @@
     <ClInclude Include="include\tower.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\IntroScreen.h">
-      <Filter>Resource Files</Filter>
+    <ClInclude Include="IntroScreen.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
