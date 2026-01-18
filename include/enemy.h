@@ -3,7 +3,7 @@
 #include "raymath.h"
 #include <vector>
 
-enum class EnemyType { ORC, URUK, TROLL };
+enum class EnemyType { ORC, URUK, TROLL, GROND};
 
 class Enemy {
 public:

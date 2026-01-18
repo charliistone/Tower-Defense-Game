@@ -22,6 +22,12 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
         maxHealth = 300; speed = 50.0f; manaReward = 50;
         damage = 100; // hasarı belirler
     }
+    else if (type == EnemyType::GROND) {
+        maxHealth = 1000; 
+        speed = 25.0f;    
+        manaReward = 150; 
+        damage = 500; 
+    }
 
     // --- ZORLUK AYARLAMASI ---
     maxHealth += hpBonus;       // Level bonusunu ekle
@@ -95,6 +101,7 @@ void Enemy::Draw() const {
 
     float drawSize = 48.0f;
     if (type == EnemyType::TROLL) drawSize = 64.0f;
+    if (type == EnemyType::GROND) drawSize = 100.0f;
 
     Rectangle source;
     if (texture.width == texture.height) { // Tek kare resimse

@@ -196,7 +196,7 @@ int main(void)
     Audio::LoadMusic("music_level2", "assets/sounds/music_level2.wav"); // Level 2 şarkısı
     Audio::LoadMusic("music_level3", "assets/sounds/music_level3.mp3"); // Level 3 şarkısı
     Audio::LoadMusic("game_over", "assets/sounds/game_over.mp3"); // GAMEOVER
-    Audio::LoadMusic("victory_jingle", "assets/sounds/victory_jingle.mp3"); // Zafer Müziği
+    Audio::LoadMusic("victory_jingle", "assets/sounds/victory_jingle.wav"); // Zafer Müziği
 
     Audio::LoadSFX("arrow_shoot", "assets/sounds/arrow_shoot.wav");
     Audio::LoadSFX("ice_shoot", "assets/sounds/ice_shoot.wav");
@@ -230,6 +230,7 @@ int main(void)
     Texture2D texOrc = LoadTexture("assets/sprites/enemies/orc.png");
     Texture2D texUruk = LoadTexture("assets/sprites/enemies/uruk.png");
     Texture2D texTroll = LoadTexture("assets/sprites/enemies/troll.png");
+    Texture2D texGrond = LoadTexture("assets/sprites/enemies/grond.png");
 
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
@@ -374,6 +375,46 @@ int main(void)
         allLevels.push_back(lvl);
     }
 
+    // --- TEST LEVEL ---
+    {
+        LevelData lvl; lvl.levelID = 1; lvl.name = "Level 4: TEST";
+        lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
+        lvl.bgColor = DARKGREEN; lvl.startGold = 400;
+        int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
+        lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
+        int design[12][30] = {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        };
+        lvl.tileMap.resize(MAP_ROWS);
+        for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
+        lvl.paths = GeneratePathsFromMap(lvl.tileMap);
+        // lvl.waves.push_back({ 2, EnemyType::GROND, 5.0f, 1.0f, 0 });
+         lvl.waves.push_back({ 1, EnemyType::ORC, 1.5f, 1.0f, 0 });
+        // lvl.waves.push_back({ 8, EnemyType::ORC, 1.2f, 1.0f, 0 });
+        // lvl.waves.push_back({ 3, EnemyType::URUK, 2.0f, 1.0f, 0 });
+
+        // HİKAYE
+        lvl.storyLines = {
+            "TEST",
+            "",
+            "",
+            ""
+        };
+
+        allLevels.push_back(lvl);
+    }
+
     LevelData* currentLevel = nullptr;
     GameScreen currentScreen = GameScreen::TITLE;
 
@@ -440,8 +481,11 @@ int main(void)
             break;
 
         case GameScreen::VICTORY:
+            Audio::PlayMusic("victory_jingle"); // Zafer müziği çalsın
+            break;
+
         case GameScreen::GAMEOVER:
-            Audio::StopMusic();
+            Audio::PlayMusic("game_over");      // Kaybetme müziği çalsın
             break;
         }
 
@@ -608,13 +652,22 @@ int main(void)
                         if (!currentLevel->paths.empty()) {
                             int pathIndex = GetRandomValue(0, (int)currentLevel->paths.size() - 1);
                             std::vector<Vector2>* chosenPath = currentLevel->paths[pathIndex];
+
+                            // --- TEXTURE SEÇİMİNİ BURADA YAP (HATA ÇÖZÜMÜ) ---
+                            Texture2D currentEnemyTex = texOrc; // Varsayılan
+                            if (w.enemyType == EnemyType::URUK) currentEnemyTex = texUruk;
+                            else if (w.enemyType == EnemyType::TROLL) currentEnemyTex = texTroll;
+                            else if (w.enemyType == EnemyType::GROND) currentEnemyTex = texGrond;
+                            // ------------------------------------------------
+
+                            // DÜŞMANI OLUŞTUR
                             enemies.push_back(Enemy(w.enemyType, chosenPath,
-                                (w.enemyType == EnemyType::ORC ? texOrc : (w.enemyType == EnemyType::URUK ? texUruk : texTroll)),
+                                currentEnemyTex, // Seçtiğimiz texture'ı veriyoruz
                                 w.speedMultiplier, w.healthBonus));
 
                             // Spawn Sesi
                             int rndSpawn = GetRandomValue(1, 3);
-                            Audio::PlaySFX(TextFormat("spawn_%d", rndSpawn), 0.05f, 1.0f);
+                            Audio::PlaySFX(TextFormat("spawn_%d", rndSpawn), 0.1f + GetRandomValue(-1, 1) / 10.0f);
 
                             enemiesSpawnedInWave++;
                         }
@@ -899,7 +952,7 @@ int main(void)
     }
 
     // --- TEMİZLİK ---
-    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll);
+    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texGrond);
     UnloadTexture(texTowerArcher); UnloadTexture(texTowerMelee); UnloadTexture(texTowerIce);
     UnloadTexture(texMenuBg); UnloadTexture(texBtnNormal); UnloadTexture(texBtnHover);
     UnloadTexture(texProjArrow); UnloadTexture(texProjIce); UnloadTexture(texProjMelee);

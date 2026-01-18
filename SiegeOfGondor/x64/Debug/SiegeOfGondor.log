@@ -4,19 +4,19 @@ C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\Projectile.
   
 C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(51,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(53,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(538,118): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(754,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(754,39): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(754,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(754,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(758,57): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(758,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(758,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(758,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(759,50): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(759,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(759,38): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(759,32): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(760,94): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(760,83): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(582,118): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(807,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(807,39): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(807,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(807,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(811,57): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(811,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(811,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(811,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(812,50): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(812,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(812,38): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(812,32): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(813,94): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\src\main.cpp(813,83): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   SiegeOfGondor.vcxproj -> C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\calisma alani\x64\Debug\SiegeOfGondor.exe
