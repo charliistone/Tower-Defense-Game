@@ -197,6 +197,7 @@ int main(void)
     Audio::LoadMusic("music_level3", "assets/sounds/music_level3.mp3"); // Level 3 şarkısı
     Audio::LoadMusic("game_over", "assets/sounds/game_over.mp3"); // GAMEOVER
     Audio::LoadMusic("victory_jingle", "assets/sounds/victory_jingle.wav"); // Zafer Müziği
+    Audio::LoadMusic("music_boss", "assets/sounds/nazgul_boss.wav"); // NAZGUL
 
     Audio::LoadSFX("arrow_shoot", "assets/sounds/arrow_shoot.wav");
     Audio::LoadSFX("ice_shoot", "assets/sounds/ice_shoot.wav");
@@ -231,6 +232,7 @@ int main(void)
     Texture2D texUruk = LoadTexture("assets/sprites/enemies/uruk.png");
     Texture2D texTroll = LoadTexture("assets/sprites/enemies/troll.png");
     Texture2D texGrond = LoadTexture("assets/sprites/enemies/grond.png");
+    Texture2D texNazgul = LoadTexture("assets/sprites/enemies/nazgul.png");
 
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
@@ -403,6 +405,7 @@ int main(void)
          lvl.waves.push_back({ 1, EnemyType::ORC, 1.5f, 1.0f, 0 });
         // lvl.waves.push_back({ 8, EnemyType::ORC, 1.2f, 1.0f, 0 });
         // lvl.waves.push_back({ 3, EnemyType::URUK, 2.0f, 1.0f, 0 });
+         lvl.waves.push_back({ 1, EnemyType::NAZGUL, 2.0f, 1.0f, 0 });
 
         // HİKAYE
         lvl.storyLines = {
@@ -432,9 +435,11 @@ int main(void)
     TowerType selectedTower = TowerType::ARCHER;
     int urukBlood = 0;
     float flashTimer = 0.0f;
+    float bossLabelTimer = 0.0f;
 
     // Kale Canı
     int castleHealth = 100;
+    bool isBossActive = false;
     const int CASTLE_MAX_HEALTH = 100;
 
     // Ses Kontrol Değişkenleri
@@ -470,14 +475,18 @@ int main(void)
             break;
 
         case GameScreen::GAMEPLAY:
-            if (currentLevel->levelID == 1) Audio::PlayMusic("music_level1");
-            else if (currentLevel->levelID == 2) Audio::PlayMusic("music_level2");
-            else if (currentLevel->levelID == 3) Audio::PlayMusic("music_level3");
+            if (isBossActive) {
+                Audio::PlayMusic("music_boss"); // Boss varsa bu çalar
+                Audio::SetMusicVolume(0.4f);    // Boss müziği biraz gür olsun
+            }
+            else {
+                // Normal Level Müzikleri
+                if (currentLevel->levelID == 1) Audio::PlayMusic("music_level1");
+                else if (currentLevel->levelID == 2) Audio::PlayMusic("music_level2");
+                else if (currentLevel->levelID == 3) Audio::PlayMusic("music_level3");
 
-            // ▼▼▼ BURADAN AYARLA ▼▼▼
-            // Savaş sırasında müzik biraz daha kısık olsun ki (örn: %20)
-            // kılıç ve büyü sesleri net duyulsun.
-            Audio::SetMusicVolume(0.05f);
+                Audio::SetMusicVolume(0.2f); // Normal müzik kısık
+            }
             break;
 
         case GameScreen::VICTORY:
@@ -525,6 +534,8 @@ int main(void)
                         enemies.clear(); towers.clear(); projectiles.clear(); riders.clear(); bloodSystem.particles.clear();
                         currentWaveIndex = 0; enemiesSpawnedInWave = 0; waveDelayTimer = 0.0f; urukBlood = 0;
                         camera.target = { 0, 0 };
+                        isBossActive = false; // <--- SIFIRLAMAYI UNUTMA
+                        currentScreen = GameScreen::LEVEL_INTRO;
 
                         // HİKAYE BAŞLAT
                         introState = 0; introAlpha = 0.0f; introTimer = 0.0f; introTextIndex = 0;
@@ -658,12 +669,17 @@ int main(void)
                             if (w.enemyType == EnemyType::URUK) currentEnemyTex = texUruk;
                             else if (w.enemyType == EnemyType::TROLL) currentEnemyTex = texTroll;
                             else if (w.enemyType == EnemyType::GROND) currentEnemyTex = texGrond;
+                            else if (w.enemyType == EnemyType::NAZGUL) currentEnemyTex = texNazgul;
                             // ------------------------------------------------
 
                             // DÜŞMANI OLUŞTUR
                             enemies.push_back(Enemy(w.enemyType, chosenPath,
                                 currentEnemyTex, // Seçtiğimiz texture'ı veriyoruz
                                 w.speedMultiplier, w.healthBonus));
+                            if (w.enemyType == EnemyType::NAZGUL) {
+                                isBossActive = true; // MÜZİĞİ DEĞİŞTİR!
+                                bossLabelTimer = 4.0f;
+                            }
 
                             // Spawn Sesi
                             int rndSpawn = GetRandomValue(1, 3);
@@ -854,6 +870,23 @@ int main(void)
 
             EndMode2D();
 
+            // 1. BOSS YAZISI (Artık bağımsız çalışıyor)
+            if (bossLabelTimer > 0.0f) {
+                bossLabelTimer -= dt;
+
+                float alpha = (sinf(GetTime() * 10.0f) + 1.0f) / 2.0f;
+
+                const char* text = "WITCH KING IS HERE";
+                int fontSize = 60;
+                int textW = MeasureText(text, fontSize);
+                int textX = (screenWidth - textW) / 2;
+                int textY = 200;
+
+                DrawText(text, textX + 4, textY + 4, fontSize, Fade(BLACK, 0.7f));
+                DrawText(text, textX, textY, fontSize, Fade(RED, 0.8f + (alpha * 0.2f)));
+            }
+
+            // 2. GANDALF EFEKTİ (Kendi halinde çalışsın)
             if (flashTimer > 0.0f) {
                 flashTimer -= dt;
                 DrawRectangle(0, 0, screenWidth, screenHeight, Fade(WHITE, flashTimer * 0.2f));

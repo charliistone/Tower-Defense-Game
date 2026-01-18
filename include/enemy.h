@@ -3,7 +3,7 @@
 #include "raymath.h"
 #include <vector>
 
-enum class EnemyType { ORC, URUK, TROLL, GROND};
+enum class EnemyType { ORC, URUK, TROLL, GROND, NAZGUL }; // <-- NAZGUL EKLENDİ
 
 class Enemy {
 public:
@@ -20,7 +20,12 @@ public:
     bool IsAlive() const { return alive; }
     bool ReachedEnd() const { return currentPoint >= path->size() - 1; }
     Vector2 GetPosition() const { return position; }
-    float GetRadius() const { return 15.0f; }
+    float GetRadius() const {
+        if (type == EnemyType::GROND) return 60.0f;
+        if (type == EnemyType::NAZGUL) return 40.0f; // <-- Nazgul Hitbox
+        if (type == EnemyType::TROLL) return 30.0f;
+        return 15.0f;
+    }
     int GetManaReward() const { return manaReward; }
     int GetDamage() const { return damage; }
 

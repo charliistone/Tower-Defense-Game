@@ -28,6 +28,12 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
         manaReward = 150; 
         damage = 500; 
     }
+    else if (type == EnemyType::NAZGUL) {
+        maxHealth = 2500; // Grond'dan bile fazla can
+        speed = 60.0f;    // Grond'dan hızlı (Uçuyor/Atlı)
+        manaReward = 1000;
+        damage = 9999;    // Dokunduğu an oyun biter
+    }
 
     // --- ZORLUK AYARLAMASI ---
     maxHealth += hpBonus;       // Level bonusunu ekle
@@ -101,7 +107,8 @@ void Enemy::Draw() const {
 
     float drawSize = 48.0f;
     if (type == EnemyType::TROLL) drawSize = 64.0f;
-    if (type == EnemyType::GROND) drawSize = 100.0f;
+    else if (type == EnemyType::GROND) drawSize = 100.0f;
+    else if (type == EnemyType::NAZGUL) drawSize = 130.0f; 
 
     Rectangle source;
     if (texture.width == texture.height) { // Tek kare resimse
@@ -121,6 +128,11 @@ void Enemy::Draw() const {
     DrawTexturePro(texture, source, dest, origin, 0.0f, tint);
 
     // Can Barı
+
+    int offset = 15;
+    if (type == EnemyType::GROND) offset = 40;
+    else if (type == EnemyType::NAZGUL) offset = 30;
+
     float pct = (float)health / (float)maxHealth;
     int barWidth = (int)drawSize;
     DrawRectangle((int)position.x - barWidth / 2, (int)position.y - (int)(drawSize / 2) - 10, barWidth, 6, RED);
