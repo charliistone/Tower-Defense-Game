@@ -57,7 +57,7 @@ All external assets are royalty-free and sourced from the following providers:
 A strategy-based **Tower Defense Game** developed in **C**, inspired by the legendary world of *The Lord of the Rings*.
 
 ### 📜 The Story
-As fans of Middle-earth, we designed a story that stays true to the epic defense of Gondor. As the Lord of Gondor, you must protect the main tower from the relentless assault of Sauron's forces.
+As fans of LOTR series, we designed a story that stays true to the epic defense of Gondor. As the Lord of Gondor, you must protect the main tower from the relentless assault of Sauron's forces.
 
 ---
 
