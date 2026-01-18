@@ -1,4 +1,7 @@
 #include "Enemy.h"
+#include "raylib.h"
+
+extern Sound deathSound;
 
 Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex)
     : position({ 0,0 }), path(path), currentPoint(0), texture(tex), type(type),
@@ -117,8 +120,13 @@ void Enemy::Draw() const {
 }
 
 void Enemy::TakeDamage(int dmg) {
+    if (!alive) return;
+
     health -= dmg;
-    if (health <= 0) alive = false;
+    if (health <= 0) {
+        alive = false;
+        PlaySound(deathSound);
+    }
 }
 
 void Enemy::ApplyStun(float duration) { stunTimer = duration; }

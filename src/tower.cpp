@@ -1,4 +1,7 @@
 #include "Tower.h"
+#include "raylib.h"
+
+extern Sound shootSound;
 
 Tower::Tower(Vector2 pos, Texture2D tex, TowerType type)
     : position(pos), texture(tex), type(type),
@@ -24,6 +27,9 @@ void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile
 
             if (CheckCollisionCircles(position, range, e.GetPosition(), e.GetRadius())) {
 
+                // SESÝ BURAYA ALDIK: Herhangi bir kule (Melee dahil) vuruþ yaptýðýnda çalar.
+                PlaySound(shootSound);
+
                 // Saldýrý Türü
                 ProjectileType pType = ProjectileType::ARROW;
                 if (type == TowerType::ICE) pType = ProjectileType::ICE;
@@ -37,7 +43,7 @@ void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile
                 }
 
                 cooldown = fireRate;
-                break; // Tek seferde bir düþmana vur
+                break;
             }
         }
     }

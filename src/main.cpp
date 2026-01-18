@@ -6,6 +6,10 @@
 #include <vector>
 #include <string>
 
+Sound buildSound;
+Sound shootSound;
+Sound deathSound;
+
 // --- HELPER FUNCTIONS ---
 float GetTowerRange(TowerType type) {
     switch (type) {
@@ -114,6 +118,10 @@ int main(void)
     const int screenWidth = 1280;
     const int screenHeight = 720;
     InitWindow(screenWidth, screenHeight, "Siege of Gondor - Return of the King");
+    InitAudioDevice();
+    buildSound = LoadSound("assets/audio/built.wav");
+    shootSound = LoadSound("assets/audio/shoot.wav");
+    deathSound = LoadSound("assets/audio/death.wav");
     SetTargetFPS(60);
 
     // --- PATHS ---
@@ -225,7 +233,7 @@ int main(void)
             for (Tower& t : towers) {
                 if (t.IsClicked(mousePos)) {
                     clickedExisting = true;
-                    if (gold >= t.GetUpgradeCost()) { gold -= t.GetUpgradeCost(); t.Upgrade(); }
+                    if (gold >= t.GetUpgradeCost()) { gold -= t.GetUpgradeCost(); t.Upgrade(); PlaySound(buildSound);}
                     break;
                 }
             }
@@ -237,6 +245,8 @@ int main(void)
 
                 towers.emplace_back(snapPos, textureToUse, selectedTower);
                 gold -= GetTowerCost(selectedTower);
+
+                PlaySound(buildSound);
             }
         }
 
@@ -418,6 +428,11 @@ int main(void)
 
     for (auto& tex : rohirrimFrames) UnloadTexture(tex);
 
+
+    UnloadSound(buildSound);
+    UnloadSound(shootSound);
+    UnloadSound(deathSound);
+    CloseAudioDevice();
     delete pathTop; delete pathBottom;
     CloseWindow();
     return 0;
