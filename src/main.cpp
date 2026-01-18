@@ -195,8 +195,8 @@ int main(void)
     Audio::LoadMusic("music_level1", "assets/sounds/music_level1.mp3"); // Level 1 şarkısı
     Audio::LoadMusic("music_level2", "assets/sounds/music_level2.wav"); // Level 2 şarkısı
     Audio::LoadMusic("music_level3", "assets/sounds/music_level3.mp3"); // Level 3 şarkısı
-    Audio::LoadSFX("game_over", "assets/sounds/game_over.mp3"); // GAMEOVER
-    Audio::LoadSFX("victory_jingle", "assets/sounds/victory_jingle.mp3"); // Zafer Müziği
+    Audio::LoadMusic("game_over", "assets/sounds/game_over.mp3"); // GAMEOVER
+    Audio::LoadMusic("victory_jingle", "assets/sounds/victory_jingle.mp3"); // Zafer Müziği
 
     Audio::LoadSFX("arrow_shoot", "assets/sounds/arrow_shoot.wav");
     Audio::LoadSFX("ice_shoot", "assets/sounds/ice_shoot.wav");
@@ -221,6 +221,9 @@ int main(void)
 
     // GÖRSELLERİ YÜKLE
     Texture2D texMenuBg = LoadTexture("assets/ui/menu_bg.png");
+    Texture2D texVictoryBg = LoadTexture("assets/ui/victory_bg.png");
+    Texture2D texDefeatBg = LoadTexture("assets/ui/defeat_bg.png");
+
     Texture2D texBtnNormal = LoadTexture("assets/ui/btn_default.png");
     Texture2D texBtnHover = LoadTexture("assets/ui/btn_hover.png");
 
@@ -297,7 +300,7 @@ int main(void)
         lvl.background = LoadTexture("assets/sprites/environment/lvl2_bg.png");
         lvl.bgColor = DARKGREEN; lvl.startGold = 500;
         int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
-        lvl.castlePos = { 1500.0f, 50.0f }; lvl.castleScale = 1.0f;
+        lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
         int design[12][30] = {
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {2,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -337,7 +340,7 @@ int main(void)
         lvl.background = LoadTexture("assets/sprites/environment/lvl3_bg.png");
         lvl.bgColor = DARKGREEN; lvl.startGold = 400;
         int width = 50; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
-        lvl.castlePos = { 2700.0f, 0.0f }; lvl.castleScale = 1.0f;
+        lvl.castlePos = { 2700.0f, 90.0f }; lvl.castleScale = 0.5f;
         int design[12][50] = {
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -626,7 +629,7 @@ int main(void)
                 // VICTORY KONTROLÜ
                 if (enemies.empty()) {
                     Audio::StopMusic();
-                    Audio::PlaySFX("victory_jingle");
+                    Audio::PlayMusic("victory_jingle");
                     currentScreen = GameScreen::VICTORY;
                 }
             }
@@ -659,7 +662,7 @@ int main(void)
                     if (castleHealth <= 0) {
                         castleHealth = 0;
                         Audio::StopMusic();
-                        Audio::PlaySFX("game_over");
+                        Audio::PlayMusic("game_over");
                         currentScreen = GameScreen::GAMEOVER;
                     }
                 }
@@ -834,21 +837,57 @@ int main(void)
         }
         break; // Buradaki parantez zaten kapalıydı, bir sorun yok.
 
+        // =======================
+        // VICTORY SCREEN
+        // =======================
         case GameScreen::VICTORY:
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.85f));
+            // 1. Arka Planı Çiz
+            if (texVictoryBg.id > 0) {
+                DrawTexturePro(texVictoryBg,
+                    { 0, 0, (float)texVictoryBg.width, (float)texVictoryBg.height }, // Kaynak
+                    { 0, 0, (float)screenWidth, (float)screenHeight },               // Hedef (Tüm ekran)
+                    { 0, 0 }, 0.0f, WHITE);
+            }
+            else {
+                DrawRectangle(0, 0, screenWidth, screenHeight, BLACK); // Resim yoksa Siyah yap
+            }
+
+            // 2. Hafif Karartma (Yazılar okunsun diye)
+            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.4f));
+
+            // 3. Yazılar ve Buton
             DrawText("VICTORY!", screenWidth / 2 - MeasureText("VICTORY!", 80) / 2, screenHeight / 2 - 100, 80, GOLD);
             DrawText("Gondor is Safe... For now.", screenWidth / 2 - MeasureText("Gondor is Safe... For now.", 30) / 2, screenHeight / 2, 30, WHITE);
+
             if (GuiButton({ (float)screenWidth / 2 - 100, (float)screenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover)) {
                 Audio::StopMusic();
                 currentScreen = GameScreen::TITLE;
             }
             break;
 
+            // =======================
+            // GAMEOVER SCREEN
+            // =======================
         case GameScreen::GAMEOVER:
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.9f));
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(RED, 0.2f));
+            // 1. Arka Planı Çiz
+            if (texDefeatBg.id > 0) {
+                DrawTexturePro(texDefeatBg,
+                    { 0, 0, (float)texDefeatBg.width, (float)texDefeatBg.height },
+                    { 0, 0, (float)screenWidth, (float)screenHeight },
+                    { 0, 0 }, 0.0f, WHITE);
+            }
+            else {
+                DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
+            }
+
+            // 2. Kırmızımsı Karartma (Dramatik etki)
+            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.6f)); // Biraz daha koyu
+            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(RED, 0.2f));   // Hafif kırmızı ton
+
+            // 3. Yazılar ve Buton
             DrawText("DEFEAT", screenWidth / 2 - MeasureText("DEFEAT", 80) / 2, screenHeight / 2 - 100, 80, RED);
             DrawText("The White City has Fallen.", screenWidth / 2 - MeasureText("The White City has Fallen.", 30) / 2, screenHeight / 2, 30, RAYWHITE);
+
             if (GuiButton({ (float)screenWidth / 2 - 100, (float)screenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover)) {
                 Audio::StopMusic();
                 currentScreen = GameScreen::TITLE;
@@ -866,6 +905,8 @@ int main(void)
     UnloadTexture(texProjArrow); UnloadTexture(texProjIce); UnloadTexture(texProjMelee);
     UnloadTexture(texBlood); UnloadTexture(texRoad); UnloadTexture(texCity);
     UnloadTexture(texGandalf);
+    UnloadTexture(texVictoryBg);
+    UnloadTexture(texDefeatBg);
     for (auto& lvl : allLevels) {
         UnloadTexture(lvl.background);
         for (auto* p : lvl.paths) delete p;
