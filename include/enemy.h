@@ -11,6 +11,8 @@ class Enemy {
 public:
     Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex);
 
+    bool IsOrc() const { return type == EnemyType::ORC && alive; }
+
     void Update(float dt);
     void Draw() const;
 
