@@ -9,11 +9,11 @@
 // --- OYUN DURUMLARI ---
 enum class GameScreen { TITLE, LEVEL_SELECT, GAMEPLAY, VICTORY, GAMEOVER };
 
-// --- SABİT AYARLAR ---
+// --- AYARLAR ---
 const int TILE_SIZE = 64;
-const int MAP_ROWS = 12; // Yükseklik genelde sabit kalır (Ekran yüksekliği)
-// NOT: MAP_COLS artık sabit değil, her level için değişebilir!
+const int MAP_ROWS = 12;
 
+// --- WAVE YAPISI ---
 struct EnemyWave {
     int enemyCount;
     EnemyType enemyType;
@@ -22,34 +22,30 @@ struct EnemyWave {
     int healthBonus;
 };
 
-// --- LEVEL YAPISI (GÜNCELLENDİ) ---
+// --- LEVEL YAPISI ---
 struct LevelData {
     int levelID;
     const char* name;
     Texture2D background;
     Color bgColor;
 
-    // ARTIK SABİT DEĞİL, VEKTÖR KULLANIYORUZ
     std::vector<std::vector<int>> tileMap;
-
     std::vector<std::vector<Vector2>*> paths;
     int startGold;
-    int mapWidth; // Haritanın piksel genişliği (cols * TILE_SIZE)
-    int cols;     // Bu level kaç sütun? (30, 50, 100...)
+    int mapWidth;
+    int cols;
 
     Vector2 castlePos;
     float castleScale;
     std::vector<EnemyWave> waves;
 };
 
-// --- DİNAMİK YOL BULUCU (GÜNCELLENDİ) ---
-// Artık sabit MAP_COLS yerine map[0].size() kullanarak genişliği anlıyor.
+// --- DİNAMİK YOL BULUCU ---
 std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::vector<int>>& map) {
     std::vector<std::vector<Vector2>*> allPaths;
-
     int rows = map.size();
     if (rows == 0) return allPaths;
-    int cols = map[0].size(); // Haritanın genişliğini dinamik al
+    int cols = map[0].size();
 
     for (int startY = 0; startY < rows; startY++) {
         for (int startX = 0; startX < cols; startX++) {
@@ -68,7 +64,6 @@ std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::v
 
                     for (int i = 0; i < 4; i++) {
                         int cx = currX + dx[i], cy = currY + dy[i];
-                        // Sınır kontrolünde dinamik 'cols' kullanıyoruz
                         if (cx >= 0 && cx < cols && cy >= 0 && cy < rows) {
                             if ((cx != prevX || cy != prevY) && (map[cy][cx] == 1 || map[cy][cx] == 3)) {
                                 nextX = cx; nextY = cy; break;
@@ -85,7 +80,7 @@ std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::v
     return allPaths;
 }
 
-// --- UI & YARDIMCI FONKSİYONLAR ---
+// --- UI BUTON ---
 bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D texHover) {
     Vector2 mousePos = GetMousePosition();
     bool hover = CheckCollisionPointRec(mousePos, rect);
@@ -114,13 +109,8 @@ bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D 
 
 float GetTowerRange(TowerType type) { if (type == TowerType::ARCHER) return 250.0f; if (type == TowerType::ICE) return 180.0f; return 100.0f; }
 int GetTowerCost(TowerType type) { if (type == TowerType::ARCHER) return 100; if (type == TowerType::ICE) return 150; return 75; }
-float GetMinDistanceToAnyPath(Vector2 pos, const std::vector<std::vector<Vector2>*>& allPaths) {
-    float minDist = 9999.0f;
-    for (auto* path : allPaths) for (size_t i = 0; i < path->size() - 1; i++) if (CheckCollisionPointCircle(pos, (*path)[i], 30)) minDist = 0;
-    return minDist;
-}
 
-// Efekt Sistemleri
+// Efekt Sistemleri (Kan Efekti)
 struct BloodParticle { Vector2 position; int currentFrame; float animTimer; bool active; };
 class BloodManager {
 public:
@@ -150,6 +140,7 @@ public:
     }
 };
 
+// Atlı Asker (Rohirrim) Yeteneği
 struct Rohirrim {
     Vector2 position; std::vector<Vector2>* path; int currentPoint; bool active;
     const std::vector<Texture2D>* frames; float animTimer; int currentFrameIndex;
@@ -186,22 +177,34 @@ int main(void)
 {
     const int screenWidth = 1280;
     const int screenHeight = 720;
-    InitWindow(screenWidth, screenHeight, "Siege of Gondor - Variable Map Sizes");
+    InitWindow(screenWidth, screenHeight, "Siege of Gondor - Master Edition");
     SetTargetFPS(60);
 
-    // Assets
+    // --- ASSETS YÜKLEME ---
     Texture2D texMenuBg = LoadTexture("assets/ui/menu_bg.png");
     Texture2D texBtnNormal = LoadTexture("assets/ui/btn_default.png");
     Texture2D texBtnHover = LoadTexture("assets/ui/btn_hover.png");
+
+    // Düşmanlar
     Texture2D texOrc = LoadTexture("assets/sprites/enemies/orc.png");
     Texture2D texUruk = LoadTexture("assets/sprites/enemies/uruk.png");
     Texture2D texTroll = LoadTexture("assets/sprites/enemies/troll.png");
+
+    // Çevre
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
+
+    // Kuleler
     Texture2D texTowerArcher = LoadTexture("assets/sprites/towers/tower_archer.png");
     Texture2D texTowerMelee = LoadTexture("assets/sprites/towers/tower_melee.png");
     Texture2D texTowerIce = LoadTexture("assets/sprites/towers/tower_ice.png");
-    Texture2D texProjectiles = LoadTexture("assets/sprites/projectiles/AllProjectiles.png");
+
+    // Mermi ve Efektler (HEPSİ 6 KARELİK ŞERİT OLARAK YÜKLENİYOR)
+    // NOT: Bu dosyalarınızın adı farklıysa lütfen düzeltin (arrow_sheet.png, ice_sheet.png vb.)
+    Texture2D texProjArrow = LoadTexture("assets/sprites/projectiles/arrow1.png");
+    Texture2D texProjIce = LoadTexture("assets/sprites/projectiles/ice_proj.png");
+    Texture2D texProjMelee = LoadTexture("assets/sprites/projectiles/melee.png"); // EKLENDİ
+
     Texture2D texBlood = LoadTexture("assets/sprites/effects/blood_strip.png");
     Texture2D texGandalf = LoadTexture("assets/sprites/gandalf.png");
 
@@ -223,13 +226,12 @@ int main(void)
         lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
         lvl.bgColor = DARKGREEN; lvl.startGold = 400;
 
-        // ÖNEMLİ: Bu level için genişlik 30
         int width = 30;
         lvl.cols = width;
         lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 1400.0f, 50.0f }; lvl.castleScale = 1.0f;
 
-        // Harita Tasarımı (30 Sütun)
+        // Harita Tasarımı (KORUNDU)
         int design[12][30] = {
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -243,9 +245,8 @@ int main(void)
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-         };
+        };
 
-        // Veriyi Vektöre Çevir
         lvl.tileMap.resize(MAP_ROWS);
         for (int y = 0; y < MAP_ROWS; y++) {
             lvl.tileMap[y].resize(width);
@@ -260,20 +261,19 @@ int main(void)
     }
 
     // ============================================
-    // LEVEL 2: UZUN HARİTA (30 Sütun)
+    // LEVEL 2: UZUN HARİTA (30 Sütun - KODUNUZDAKİ GİBİ)
     // ============================================
     {
         LevelData lvl; lvl.levelID = 2; lvl.name = "Level 2: Long Road";
         lvl.background = LoadTexture("assets/sprites/environment/lvl2_bg.png");
         lvl.bgColor = DARKGRAY; lvl.startGold = 500;
 
-        // ÖNEMLİ: Bu level için genişlik 50
-        int width = 30;
+        int width = 30; // Kodunuzdaki değere sadık kalındı
         lvl.cols = width;
         lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 1500.0f, 50.0f }; lvl.castleScale = 1.0f;
 
-        // Harita Tasarımı (30 Sütunluk Dizi)
+        // Harita Tasarımı (KORUNDU)
         int design[12][30] = {
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {2,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -310,13 +310,12 @@ int main(void)
         lvl.background = LoadTexture("assets/sprites/environment/lvl3_bg.png");
         lvl.bgColor = DARKGREEN; lvl.startGold = 400;
 
-        // ÖNEMLİ: Bu level için genişlik 50
         int width = 50;
         lvl.cols = width;
         lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 2700.0f, 0.0f }; lvl.castleScale = 1.0f;
 
-        // Harita Tasarımı (50 Sütun)
+        // Harita Tasarımı (KORUNDU)
         int design[12][50] = {
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -330,9 +329,8 @@ int main(void)
             {0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-            };
+        };
 
-        // Veriyi Vektöre Çevir
         lvl.tileMap.resize(MAP_ROWS);
         for (int y = 0; y < MAP_ROWS; y++) {
             lvl.tileMap[y].resize(width);
@@ -345,8 +343,6 @@ int main(void)
         lvl.waves.push_back({ 70, EnemyType::URUK, 0.5f, 1.5f, 0 });
         allLevels.push_back(lvl);
     }
-
-    // Diğer levellerı buraya ekleyebilirsin...
 
     LevelData* currentLevel = nullptr;
     GameScreen currentScreen = GameScreen::TITLE;
@@ -430,7 +426,6 @@ int main(void)
             bool isValidPlacement = true;
             bool isHoveringUI = (mouseScreenPos.y > screenHeight - 60);
 
-            // DİNAMİK COLS KULLANIMI
             if (gridX < 0 || gridX >= currentLevel->cols || gridY < 0 || gridY >= MAP_ROWS) isValidPlacement = false;
             else if (currentLevel->tileMap[gridY][gridX] != 0) isValidPlacement = false;
 
@@ -451,9 +446,19 @@ int main(void)
                 }
                 if (!clickedExisting && isValidPlacement) {
                     Texture2D textureToUse = texTowerArcher;
-                    if (selectedTower == TowerType::MELEE) textureToUse = texTowerMelee;
-                    else if (selectedTower == TowerType::ICE) textureToUse = texTowerIce;
-                    towers.emplace_back(snapPos, textureToUse, texProjectiles, selectedTower);
+                    Texture2D projectileToUse = texProjArrow; // Varsayılan: Ok Şeridi
+
+                    if (selectedTower == TowerType::MELEE) {
+                        textureToUse = texTowerMelee;
+                        // MELEE İÇİN EFEKT RESMİ GÖNDERİLİYOR
+                        projectileToUse = texProjMelee;
+                    }
+                    else if (selectedTower == TowerType::ICE) {
+                        textureToUse = texTowerIce;
+                        projectileToUse = texProjIce;   // Buz Şeridi
+                    }
+
+                    towers.emplace_back(snapPos, textureToUse, projectileToUse, selectedTower);
                     gold -= GetTowerCost(selectedTower);
                 }
             }
@@ -502,56 +507,48 @@ int main(void)
             for (Tower& t : towers) t.Update(dt, enemies, projectiles);
             for (int i = 0; i < projectiles.size(); i++) {
                 projectiles[i].Update(dt);
-                for (Enemy& e : enemies) {
-                    if (e.IsAlive() && CheckCollisionCircles(projectiles[i].position, 5, e.GetPosition(), e.GetRadius())) {
-                        e.TakeDamage(projectiles[i].damage); bloodSystem.Spawn(e.GetPosition());
-                        if (projectiles[i].type == ProjectileType::ICE) e.ApplySlow(0.5f, 2.0f);
-                        projectiles[i].active = false;
-                        if (!e.IsAlive()) { gold += 15; urukBlood += e.GetManaReward(); if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD; }
-                        break;
+
+                // MELEE KONTROLÜ (EKLENDİ)
+                // Melee efektleri (Vuruşlar) zaten Tower.cpp içinde anında hasar verdi.
+                // Bu yüzden burada tekrar çarpışma kontrolü yapmamalıyız.
+                // Sadece NORMAL mermiler (Ok, Buz) için kontrol yapıyoruz.
+                if (projectiles[i].active && projectiles[i].type != ProjectileType::MELEE) {
+                    for (Enemy& e : enemies) {
+                        if (e.IsAlive() && CheckCollisionCircles(projectiles[i].position, 5, e.GetPosition(), e.GetRadius())) {
+                            e.TakeDamage(projectiles[i].damage);
+                            bloodSystem.Spawn(e.GetPosition());
+
+                            if (projectiles[i].type == ProjectileType::ICE) e.ApplySlow(0.5f, 2.0f);
+
+                            projectiles[i].active = false; // Mermiyi yok et
+
+                            if (!e.IsAlive()) { gold += 15; urukBlood += e.GetManaReward(); if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD; }
+                            break;
+                        }
                     }
                 }
+
                 if (!projectiles[i].active) { projectiles.erase(projectiles.begin() + i); i--; }
             }
 
             BeginMode2D(camera);
 
-            // --- ARKA PLAN ÇİZİMİ (DÜZELTİLDİ: REPEAT MODU) ---
+            // ARKA PLAN (REPEAT MODU EKLENDİ)
             if (currentLevel->background.id > 0) {
-
-                // 1. Resmi "Tekrar Et" moduna al
                 SetTextureWrap(currentLevel->background, TEXTURE_WRAP_REPEAT);
-
-                // 2. Çizim Parametreleri
-                // Kaynak (Source) Genişliği: Resmin genişliği değil, HARİTANIN genişliği kadar istiyoruz.
-                // Raylib, resim bittiğinde Repeat modunda olduğu için başa dönüp tekrar çizecektir.
-
-                Rectangle sourceRec = {
-                    0,
-                    0,
-                    (float)currentLevel->mapWidth,          // <-- PÜF NOKTASI: Harita genişliği kadar kaynak al
-                    (float)currentLevel->background.height  // Yükseklik resim kadar olsun
-                };
-
-                Rectangle destRec = {
-                    0,
-                    0,
-                    (float)currentLevel->mapWidth,
-                    (float)screenHeight
-                };
-
-                DrawTexturePro(currentLevel->background, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
+                DrawTexturePro(currentLevel->background,
+                    { 0, 0, (float)currentLevel->mapWidth, (float)currentLevel->background.height },
+                    { 0, 0, (float)currentLevel->mapWidth, (float)screenHeight },
+                    { 0, 0 }, 0.0f, WHITE);
             }
-            else {
-                DrawRectangle(0, 0, currentLevel->mapWidth, screenHeight, currentLevel->bgColor);
-            }
+            else DrawRectangle(0, 0, currentLevel->mapWidth, screenHeight, currentLevel->bgColor);
 
             // DİNAMİK COLS KULLANIMI
             for (int y = 0; y < MAP_ROWS; y++) {
                 for (int x = 0; x < currentLevel->cols; x++) {
                     Rectangle destRect = { (float)x * TILE_SIZE, (float)y * TILE_SIZE, (float)TILE_SIZE, (float)TILE_SIZE };
 
-                    if (currentLevel->tileMap[y][x] == 1 || currentLevel->tileMap[y][x] == 2 || currentLevel->tileMap[y][x] == 3) {
+                    if (currentLevel->tileMap[y][x] != 0) {
                         if (texRoad.id > 0) DrawTexturePro(texRoad, { 0,0,(float)texRoad.width,(float)texRoad.height }, destRect, { 0,0 }, 0, WHITE);
                         else DrawRectangleRec(destRect, BROWN);
                     }
@@ -576,6 +573,26 @@ int main(void)
             bloodSystem.Draw();
             for (const auto& p : projectiles) p.Draw();
 
+            // HAYALET KULE
+            if (!isHoveringUI) {
+                Texture2D previewTex = texTowerArcher;
+                if (selectedTower == TowerType::MELEE) previewTex = texTowerMelee;
+                else if (selectedTower == TowerType::ICE) previewTex = texTowerIce;
+
+                Color ghostColor = isValidPlacement ? Fade(GREEN, 0.5f) : Fade(RED, 0.5f);
+                float range = GetTowerRange(selectedTower);
+                DrawCircleV(snapPos, range, Fade(ghostColor, 0.2f));
+                DrawCircleLines((int)snapPos.x, (int)snapPos.y, range, ghostColor);
+
+                if (previewTex.id > 0) {
+                    Rectangle src = { 0, 0, (float)previewTex.width, (float)previewTex.height };
+                    Rectangle dest = { snapPos.x, snapPos.y, 64, 114 };
+                    Vector2 origin = { 32, 100 };
+                    DrawTexturePro(previewTex, src, dest, origin, 0.0f, ghostColor);
+                }
+            }
+
+            // UPGRADE UI
             bool hoverExisting = false;
             for (const Tower& t : towers) {
                 if (t.IsClicked(mouseWorldPos)) {
@@ -636,7 +653,8 @@ int main(void)
     UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll);
     UnloadTexture(texTowerArcher); UnloadTexture(texTowerMelee); UnloadTexture(texTowerIce);
     UnloadTexture(texMenuBg); UnloadTexture(texBtnNormal); UnloadTexture(texBtnHover);
-    UnloadTexture(texProjectiles); UnloadTexture(texBlood); UnloadTexture(texRoad); UnloadTexture(texCity);
+    UnloadTexture(texProjArrow); UnloadTexture(texProjIce); UnloadTexture(texProjMelee);
+    UnloadTexture(texBlood); UnloadTexture(texRoad); UnloadTexture(texCity);
     UnloadTexture(texGandalf);
     for (auto& lvl : allLevels) {
         UnloadTexture(lvl.background);

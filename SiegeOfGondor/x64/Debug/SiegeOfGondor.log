@@ -1,15 +1,5 @@
-﻿  enemy.cpp
-  main.cpp
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\Projectile.h(39,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
-  
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(50,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(52,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(417,118): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-  tower.cpp
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\Projectile.h(39,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+﻿  tower.cpp
+C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\kule kırmızı renk yedek elleme - Copy\src\Projectile.h(29,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'src/tower.cpp')
   
-  Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  SiegeOfGondor.vcxproj -> C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\x64\Debug\SiegeOfGondor.exe
+  SiegeOfGondor.vcxproj -> C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\kule kırmızı renk yedek elleme - Copy\x64\Debug\SiegeOfGondor.exe
