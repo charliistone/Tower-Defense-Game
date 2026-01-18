@@ -1,15 +1,14 @@
-#pragma once
+ï»¿#pragma once
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
-
-// DÝKKAT: Buraya ASLA #include "Enemy.h" EKLEME! Sonsuz döngü yapar.
 
 enum class EnemyType { ORC, URUK, TROLL };
 
 class Enemy {
 public:
-    Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex);
+    // ZORLUK SÄ°STEMÄ°: speedMult (HÄ±z Ã‡arpanÄ±) ve hpBonus (Ekstra Can) eklendi
+    Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float speedMult = 1.0f, int hpBonus = 0);
 
     void Update(float dt);
     void Draw() const;
@@ -43,10 +42,10 @@ private:
     float slowFactor;
     bool frozen;
 
-    // --- ANIMASYON DEÐÝÞKENLERÝ ---
+    // Animasyon DeÄŸiÅŸkenleri
     int frameWidth;
     int frameHeight;
-    int currentFrame;   // Hangi adým karesi? (0, 1, 2)
-    float animTimer;    // Animasyon hýzý
-    int facing;         // Hangi yöne bakýyor? (0:Aþaðý, 1:Sol, 2:Sað, 3:Yukarý)
+    int currentFrame;
+    float animTimer;
+    int facing;
 };

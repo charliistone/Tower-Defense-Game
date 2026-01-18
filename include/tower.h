@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "raylib.h"
 #include "Enemy.h"
 #include "Projectile.h"
@@ -12,7 +12,8 @@ enum class TowerType {
 
 class Tower {
 public:
-    Tower(Vector2 pos, Texture2D tex, TowerType type);
+    // DÜZELTME: Constructor artık 4 parametre alıyor (Mermi resmi eklendi)
+    Tower(Vector2 pos, Texture2D tex, Texture2D projTex, TowerType type);
 
     void Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile>& projectiles);
     void Draw() const;
@@ -28,6 +29,7 @@ public:
 private:
     Vector2 position;
     Texture2D texture;
+    Texture2D projTexture; // <-- YENİ: Mermi resmi için değişken
     TowerType type;
 
     int level;

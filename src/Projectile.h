@@ -1,8 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "raylib.h"
 #include "raymath.h"
 
-// --- FIX: ADD "ARROW" HERE ---
 enum class ProjectileType {
     ARROW,
     ICE
@@ -10,12 +9,14 @@ enum class ProjectileType {
 
 class Projectile {
 public:
-    Projectile(Vector2 start, Vector2 target, int dmg, ProjectileType t) {
+    // DÜZELTME: Constructor Texture2D alıyor
+    Projectile(Vector2 start, Vector2 target, int dmg, ProjectileType t, Texture2D tex) {
         position = start;
         damage = dmg;
         type = t;
+        texture = tex; // Kaydet
         active = true;
-        speed = 600.0f; // Speed of the arrow
+        speed = 600.0f;
 
         Vector2 dir = Vector2Normalize(Vector2Subtract(target, start));
         velocity = Vector2Scale(dir, speed);
@@ -23,8 +24,6 @@ public:
 
     void Update(float dt) {
         position = Vector2Add(position, Vector2Scale(velocity, dt));
-
-        // Simple cleanup if it goes off screen (Optional)
         if (position.x < 0 || position.x > 3000 || position.y < 0 || position.y > 3000) {
             active = false;
         }
@@ -32,8 +31,22 @@ public:
 
     void Draw() const {
         if (!active) return;
-        Color c = (type == ProjectileType::ICE) ? SKYBLUE : BLACK;
-        DrawCircleV(position, 5, c);
+
+        // Sprite çizimi
+        // Basitçe tüm resmi çiziyoruz, eğer sprite sheet kullanıyorsan source rectangle ayarlaman gerekir.
+        // Şimdilik ortalayarak çizelim:
+        if (texture.id > 0) {
+            float rotation = atan2(velocity.y, velocity.x) * RAD2DEG;
+            Rectangle source = { 0, 0, (float)texture.width, (float)texture.height };
+            Rectangle dest = { position.x, position.y, (float)texture.width, (float)texture.height };
+            Vector2 origin = { (float)texture.width / 2, (float)texture.height / 2 };
+            DrawTexturePro(texture, source, dest, origin, rotation, WHITE);
+        }
+        else {
+            // Texture yoksa yuvarlak çiz
+            Color c = (type == ProjectileType::ICE) ? SKYBLUE : BLACK;
+            DrawCircleV(position, 5, c);
+        }
     }
 
     Vector2 position;
@@ -44,4 +57,5 @@ public:
 private:
     Vector2 velocity;
     float speed;
+    Texture2D texture; // <-- Texture değişkeni
 };
