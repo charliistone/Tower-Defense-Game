@@ -117,6 +117,8 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Siege of Gondor - Return of the King");
     SetTargetFPS(60);
 
+    InitAudioDevice();   
+
     IntroScreen intro;
     intro.Init();
     while (!WindowShouldClose() && !intro.IsFinished())
@@ -154,6 +156,11 @@ int main(void)
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
     Texture2D texGandalf = LoadTexture("assets/sprites/gandalf.png");
+    Sound sndRohirrim = LoadSound("assets/audio/rohirrim-charge-with-horn.mp3");
+    Sound sndGandalf = LoadSound("assets/audio/gandalfYouShallNot.mp3");
+    Sound sndOrcMarch = LoadSound("assets/audio/393019__josecruz98__marcha_se_acerca.wav");
+
+
 
     // --- YENÝ KULELERÝ YÜKLE ---
     Texture2D texTowerArcher = LoadTexture("assets/sprites/towers/tower_archer.png");
@@ -195,12 +202,14 @@ int main(void)
             if (urukBlood >= COST_GANDALF) {
                 urukBlood -= COST_GANDALF;
                 flashTimer = 1.0f;
+                PlaySound(sndGandalf);
                 for (Enemy& e : enemies) e.ApplyStun(3.0f);
             }
         }
         if (IsKeyPressed(KEY_W)) {
             if (urukBlood >= COST_ROHIRRIM) {
                 urukBlood -= COST_ROHIRRIM;
+                PlaySound(sndRohirrim);
                 riders.emplace_back(pathTop, &rohirrimFrames);
                 riders.emplace_back(pathBottom, &rohirrimFrames);
                 riders.emplace_back(pathTop, &rohirrimFrames);
@@ -286,6 +295,25 @@ int main(void)
                 enemies.erase(enemies.begin() + i); i--; continue;
             }
             if (enemies[i].ReachedEnd()) { enemies.erase(enemies.begin() + i); i--; }
+        }
+
+        static bool orcMarchPlaying = false;
+        bool anyOrcAlive = false;
+
+        for (const Enemy& e : enemies) {
+            if (e.IsOrc()) {
+                anyOrcAlive = true;
+                break;
+            }
+        }
+
+        if (anyOrcAlive && !orcMarchPlaying) {
+            PlaySound(sndOrcMarch);
+            orcMarchPlaying = true;
+        }
+        else if (!anyOrcAlive && orcMarchPlaying) {
+            StopSound(sndOrcMarch);
+            orcMarchPlaying = false;
         }
 
         for (int i = 0; i < riders.size(); i++) {
@@ -432,6 +460,13 @@ int main(void)
     for (auto& tex : rohirrimFrames) UnloadTexture(tex);
 
     delete pathTop; delete pathBottom;
+
+    UnloadSound(sndOrcMarch);
+    UnloadSound(sndRohirrim);
+    UnloadSound(sndGandalf);
+
+    CloseAudioDevice();
+
     CloseWindow();
     return 0;
 }
