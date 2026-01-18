@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Audio.cpp" />
     <ClCompile Include="src\enemy.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\tower.cpp" />

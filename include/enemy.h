@@ -22,6 +22,7 @@ public:
     Vector2 GetPosition() const { return position; }
     float GetRadius() const { return 15.0f; }
     int GetManaReward() const { return manaReward; }
+    int GetDamage() const { return damage; }
 
 private:
     Vector2 position;
@@ -41,6 +42,7 @@ private:
     float slowTimer;
     float slowFactor;
     bool frozen;
+    int damage;
 
     // Animasyon Değişkenleri
     int frameWidth;

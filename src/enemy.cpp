@@ -12,12 +12,15 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
     // Temel Özellikler
     if (type == EnemyType::ORC) {
         maxHealth = 20; speed = 120.0f; manaReward = 5;
+        damage = 10; // hasarı belirler
     }
     else if (type == EnemyType::URUK) {
         maxHealth = 50; speed = 90.0f; manaReward = 10;
+        damage = 25; // hasarı belirler
     }
     else if (type == EnemyType::TROLL) {
         maxHealth = 300; speed = 50.0f; manaReward = 50;
+        damage = 100; // hasarı belirler
     }
 
     // --- ZORLUK AYARLAMASI ---
