@@ -1,8 +1,8 @@
-#include "raylib.h"
+ï»¿#include "raylib.h"
 #include "raymath.h"
 #include "Enemy.h"
 #include "Tower.h"      
-#include "Projectile.h"  
+#include "Projectile.h" // YENÄ°: Projectile header'Ä± eklendi
 #include <vector>
 #include <string>
 
@@ -50,6 +50,7 @@ float GetMinDistanceToAnyPath(Vector2 pos, const std::vector<std::vector<Vector2
 const int MAX_BLOOD = 100;
 const int COST_GANDALF = 40;
 const int COST_ROHIRRIM = 60;
+const int MAX_TOWER_LEVEL = 5;
 
 // --- ROHIRRIM STRUCT ---
 struct Rohirrim {
@@ -57,58 +58,40 @@ struct Rohirrim {
     std::vector<Vector2>* path;
     int currentPoint;
     bool active;
-
-    // Animasyon Kareleri
     const std::vector<Texture2D>* frames;
-
     float animTimer;
     int currentFrameIndex;
 
     Rohirrim(std::vector<Vector2>* p, const std::vector<Texture2D>* animFrames) {
-        path = p;
-        frames = animFrames;
-
+        path = p; frames = animFrames;
         currentPoint = (int)path->size() - 1;
         position = (*path)[currentPoint];
-        active = true;
-
-        animTimer = 0.0f;
-        currentFrameIndex = 0;
+        active = true; animTimer = 0.0f; currentFrameIndex = 0;
     }
 
     void Update(float dt) {
         if (!active) return;
         float speed = 350.0f;
-
-        // 1. Animasyon
         animTimer += dt;
         if (animTimer >= 0.08f) {
-            animTimer = 0.0f;
-            currentFrameIndex++;
+            animTimer = 0.0f; currentFrameIndex++;
             if (currentFrameIndex >= frames->size()) currentFrameIndex = 0;
         }
-
-        // 2. Hareket
         if (currentPoint > 0) {
             Vector2 target = (*path)[currentPoint - 1];
             Vector2 dir = Vector2Normalize(Vector2Subtract(target, position));
             position = Vector2Add(position, Vector2Scale(dir, speed * dt));
-
             if (Vector2Distance(position, target) < 15.0f) currentPoint--;
         }
-        else {
-            active = false;
-        }
+        else active = false;
     }
 
     void Draw() {
         if (!active || frames->empty()) return;
-
         Texture2D currentTex = (*frames)[currentFrameIndex];
         Rectangle source = { 0, 0, -(float)currentTex.width, (float)currentTex.height };
         Rectangle dest = { position.x, position.y, 80, 80 };
         Vector2 origin = { 40, 40 };
-
         DrawTexturePro(currentTex, source, dest, origin, 0.0f, WHITE);
     }
 };
@@ -117,7 +100,7 @@ int main(void)
 {
     const int screenWidth = 1280;
     const int screenHeight = 720;
-    InitWindow(screenWidth, screenHeight, "Siege of Gondor - Return of the King");
+    InitWindow(screenWidth, screenHeight, "Siege of Gondor");
     InitAudioDevice();
     buildSound = LoadSound("assets/audio/built.wav");
     shootSound = LoadSound("assets/audio/shoot.wav");
@@ -149,13 +132,10 @@ int main(void)
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
     Texture2D texCity = LoadTexture("assets/sprites/environment/minastirith_city.png");
     Texture2D texGandalf = LoadTexture("assets/sprites/gandalf.png");
-
-    // --- YENÝ KULELERÝ YÜKLE ---
     Texture2D texTowerArcher = LoadTexture("assets/sprites/towers/tower_archer.png");
     Texture2D texTowerMelee = LoadTexture("assets/sprites/towers/tower_melee.png");
     Texture2D texTowerIce = LoadTexture("assets/sprites/towers/tower_ice.png");
 
-    // --- ROHIRRIM FRAMES ---
     std::vector<Texture2D> rohirrimFrames;
     rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop1.png"));
     rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop2.png"));
@@ -169,14 +149,13 @@ int main(void)
     std::vector<Rohirrim> riders;
 
     float spawnTimer = 0.0f;
-    int gold = 450;
+    int gold = 220;
     int waveNumber = 1;
-    int enemiesPerWave = 8;
+    int enemiesPerWave = 5;
     int enemiesSpawned = 0;
     int maxTowers = 6;
     TowerType selectedTower = TowerType::ARCHER;
     const int gridSize = 64;
-
     int urukBlood = 0;
     float flashTimer = 0.0f;
 
@@ -185,25 +164,18 @@ int main(void)
         float dt = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
 
-        // --- SKILL INPUTS ---
-        if (IsKeyPressed(KEY_Q)) {
-            if (urukBlood >= COST_GANDALF) {
-                urukBlood -= COST_GANDALF;
-                flashTimer = 1.0f;
-                for (Enemy& e : enemies) e.ApplyStun(3.0f);
-            }
+        if (IsKeyPressed(KEY_Q) && urukBlood >= COST_GANDALF) {
+            urukBlood -= COST_GANDALF; flashTimer = 1.0f;
+            for (Enemy& e : enemies) e.ApplyStun(3.0f);
         }
-        if (IsKeyPressed(KEY_W)) {
-            if (urukBlood >= COST_ROHIRRIM) {
-                urukBlood -= COST_ROHIRRIM;
-                riders.emplace_back(pathTop, &rohirrimFrames);
-                riders.emplace_back(pathBottom, &rohirrimFrames);
-                riders.emplace_back(pathTop, &rohirrimFrames);
-                riders.emplace_back(pathBottom, &rohirrimFrames);
-            }
+        if (IsKeyPressed(KEY_W) && urukBlood >= COST_ROHIRRIM) {
+            urukBlood -= COST_ROHIRRIM;
+            riders.emplace_back(pathTop, &rohirrimFrames);
+            riders.emplace_back(pathBottom, &rohirrimFrames);
+            riders.emplace_back(pathTop, &rohirrimFrames);
+            riders.emplace_back(pathBottom, &rohirrimFrames);
         }
 
-        // --- GAME LOGIC ---
         if (IsKeyPressed(KEY_ONE))   selectedTower = TowerType::ARCHER;
         if (IsKeyPressed(KEY_TWO))   selectedTower = TowerType::MELEE;
         if (IsKeyPressed(KEY_THREE)) selectedTower = TowerType::ICE;
@@ -218,7 +190,6 @@ int main(void)
         else {
             float range = GetTowerRange(selectedTower);
             float distToRoad = GetMinDistanceToAnyPath(snapPos, allPaths);
-
             if (gold < GetTowerCost(selectedTower)) { isValidPlacement = false; invalidReason = "Too Expensive!"; }
             else if (towers.size() >= maxTowers) { isValidPlacement = false; invalidReason = "Max Towers!"; }
             for (const Tower& t : towers) {
@@ -233,19 +204,22 @@ int main(void)
             for (Tower& t : towers) {
                 if (t.IsClicked(mousePos)) {
                     clickedExisting = true;
-                    if (gold >= t.GetUpgradeCost()) { gold -= t.GetUpgradeCost(); t.Upgrade(); PlaySound(buildSound);}
+                    if (t.GetLevel() < MAX_TOWER_LEVEL) {
+                        if (gold >= t.GetUpgradeCost()) {
+                            gold -= t.GetUpgradeCost();
+                            t.Upgrade();
+                            PlaySound(buildSound);
+                        }
+                    }
                     break;
                 }
             }
             if (!clickedExisting && isValidPlacement) {
-                // --- KULE TÝPÝNE GÖRE RESÝM SEÇ ---
                 Texture2D textureToUse = texTowerArcher;
                 if (selectedTower == TowerType::MELEE) textureToUse = texTowerMelee;
                 else if (selectedTower == TowerType::ICE) textureToUse = texTowerIce;
-
                 towers.emplace_back(snapPos, textureToUse, selectedTower);
                 gold -= GetTowerCost(selectedTower);
-
                 PlaySound(buildSound);
             }
         }
@@ -253,14 +227,14 @@ int main(void)
         // SPAWNING
         if (enemiesSpawned < enemiesPerWave) {
             spawnTimer += dt;
-            float delay = (waveNumber > 5) ? 0.6f : 1.2f;
+            float delay = 1.5f - (waveNumber * 0.1f);
+            if (delay < 0.3f) delay = 0.3f;
             if (spawnTimer >= delay) {
                 spawnTimer = 0.0f;
                 EnemyType type = EnemyType::ORC;
                 Texture2D tex = texOrc;
                 if (waveNumber >= 3 && GetRandomValue(0, 10) > 6) { type = EnemyType::URUK; tex = texUruk; }
-                if (waveNumber >= 5 && enemiesSpawned == enemiesPerWave - 1) { type = EnemyType::TROLL; tex = texTroll; }
-
+                if (waveNumber >= 6 && enemiesSpawned == enemiesPerWave - 1) { type = EnemyType::TROLL; tex = texTroll; }
                 std::vector<Vector2>* chosenPath = (GetRandomValue(0, 1) == 0) ? pathTop : pathBottom;
                 enemies.push_back(Enemy(type, chosenPath, tex));
                 enemiesSpawned++;
@@ -268,8 +242,9 @@ int main(void)
         }
         else if (enemies.empty()) {
             spawnTimer += dt;
-            if (spawnTimer > 2.0f) {
-                waveNumber++; enemiesPerWave += 4; enemiesSpawned = 0; spawnTimer = 0.0f; gold += 150; maxTowers += 2;
+            if (spawnTimer > 3.0f) {
+                waveNumber++; enemiesPerWave += (3 + (int)(waveNumber * 0.5f));
+                enemiesSpawned = 0; spawnTimer = 0.0f; gold += 50; maxTowers += 1;
             }
         }
 
@@ -279,7 +254,7 @@ int main(void)
             if (!enemies[i].IsAlive()) {
                 urukBlood += enemies[i].GetManaReward();
                 if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
-                gold += 15;
+                gold += enemies[i].GetGoldReward();
                 enemies.erase(enemies.begin() + i); i--; continue;
             }
             if (enemies[i].ReachedEnd()) { enemies.erase(enemies.begin() + i); i--; }
@@ -293,6 +268,7 @@ int main(void)
                     if (!e.IsAlive()) {
                         urukBlood += e.GetManaReward();
                         if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
+                        gold += e.GetGoldReward();
                     }
                 }
             }
@@ -311,7 +287,7 @@ int main(void)
                     if (!e.IsAlive()) {
                         urukBlood += e.GetManaReward();
                         if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
-                        gold += 15;
+                        gold += e.GetGoldReward();
                     }
                     break;
                 }
@@ -319,25 +295,21 @@ int main(void)
             if (!projectiles[i].active) { projectiles.erase(projectiles.begin() + i); i--; }
         }
 
-        // --- DRAWING ---
+        // DRAWING
         BeginDrawing();
-
-        Camera2D cam = { 0 };
-        cam.zoom = 1.0f;
+        Camera2D cam = { 0 }; cam.zoom = 1.0f;
         BeginMode2D(cam);
         ClearBackground(RAYWHITE);
         DrawTexturePro(bg, { 0,0,(float)bg.width,(float)bg.height }, { 0,0,(float)screenWidth,(float)screenHeight }, { 0,0 }, 0, WHITE);
 
         for (auto* path : allPaths) {
             for (size_t i = 0; i < path->size() - 1; i++) {
-                Vector2 start = (*path)[i];
-                Vector2 end = (*path)[i + 1];
+                Vector2 start = (*path)[i]; Vector2 end = (*path)[i + 1];
                 float dist = Vector2Distance(start, end);
                 Vector2 dir = Vector2Normalize(Vector2Subtract(end, start));
                 for (float d = 0; d < dist; d += 25.0f) {
                     Vector2 pos = Vector2Add(start, Vector2Scale(dir, d));
-                    DrawTexturePro(texRoad, { 0,0,(float)texRoad.width,(float)texRoad.height },
-                        { pos.x, pos.y, 50.0f, 50.0f }, { 25.0f, 25.0f }, 0.0f, WHITE);
+                    DrawTexturePro(texRoad, { 0,0,(float)texRoad.width,(float)texRoad.height }, { pos.x, pos.y, 50.0f, 50.0f }, { 25.0f, 25.0f }, 0.0f, WHITE);
                 }
             }
         }
@@ -345,35 +317,28 @@ int main(void)
         float cityScale = 1.3f;
         Vector2 gatePos = (*pathTop)[pathTop->size() - 1];
         Vector2 cityOrigin = { (float)texCity.width * cityScale * 0.38f, (float)texCity.height * cityScale * 0.92f };
-        DrawTexturePro(texCity, { 0,0,(float)texCity.width,(float)texCity.height },
-            { gatePos.x, gatePos.y, (float)texCity.width * cityScale, (float)texCity.height * cityScale },
-            cityOrigin, 0.0f, WHITE);
+        DrawTexturePro(texCity, { 0,0,(float)texCity.width,(float)texCity.height }, { gatePos.x, gatePos.y, (float)texCity.width * cityScale, (float)texCity.height * cityScale }, cityOrigin, 0.0f, WHITE);
 
         for (const auto& t : towers) t.Draw();
         for (const auto& e : enemies) e.Draw();
         for (auto& r : riders) r.Draw();
         for (const auto& p : projectiles) p.Draw();
 
-        // --- GANDALF ANIMASYON ---
         if (flashTimer > 0.0f) {
             flashTimer -= dt;
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(WHITE, flashTimer * 0.4f));
-
             float cellSize = 64.0f;
             int animFrame = (int)((1.0f - flashTimer) * 8.0f) % 7;
-            int row = 2;
-
-            Rectangle source = { animFrame * cellSize, row * cellSize, cellSize, cellSize };
-            DrawTexturePro(texGandalf, source,
-                { (float)screenWidth / 2 - 64, (float)screenHeight / 2 - 80, 128, 128 },
-                { 0,0 }, 0.0f, Fade(WHITE, flashTimer + 0.5f));
+            Rectangle source = { animFrame * cellSize, 2 * cellSize, cellSize, cellSize };
+            DrawTexturePro(texGandalf, source, { (float)screenWidth / 2 - 64, (float)screenHeight / 2 - 80, 128, 128 }, { 0,0 }, 0.0f, Fade(WHITE, flashTimer + 0.5f));
         }
 
         bool hover = false;
         for (const Tower& t : towers) {
             if (t.IsClicked(mousePos)) {
                 hover = true;
-                DrawText(TextFormat("UPGRADE: %dg", t.GetUpgradeCost()), mousePos.x, mousePos.y - 40, 20, GREEN);
+                if (t.GetLevel() >= MAX_TOWER_LEVEL) DrawText("MAX LEVEL", mousePos.x - 10, mousePos.y - 40, 20, RED);
+                else DrawText(TextFormat("UPGRADE: %dg (Lvl %d)", t.GetUpgradeCost(), t.GetLevel()), mousePos.x, mousePos.y - 40, 20, GREEN);
                 DrawCircleLines((int)t.GetPosition().x, (int)t.GetPosition().y, t.GetRange(), GREEN);
             }
         }
@@ -386,54 +351,24 @@ int main(void)
         }
 
         EndMode2D();
-
         DrawRectangle(0, screenHeight - 60, screenWidth, 60, Fade(BLACK, 0.9f));
         DrawText(TextFormat("Gold: %d", gold), 20, screenHeight - 45, 20, YELLOW);
         DrawText(TextFormat("Wave: %d", waveNumber), 20, screenHeight - 25, 20, WHITE);
 
-        Color c1 = (selectedTower == TowerType::ARCHER) ? YELLOW : GRAY;
-        Color c2 = (selectedTower == TowerType::MELEE) ? RED : GRAY;
-        Color c3 = (selectedTower == TowerType::ICE) ? SKYBLUE : GRAY;
-        int midX = screenWidth / 2 - 150;
-        DrawText("[1] Archer", midX, screenHeight - 40, 20, c1);
-        DrawText("[2] Melee", midX + 110, screenHeight - 40, 20, c2);
-        DrawText("[3] Ice", midX + 220, screenHeight - 40, 20, c3);
-
-        int rightX = screenWidth - 450;
-        int barY = screenHeight - 35;
-
+        int rightX = screenWidth - 450; int barY = screenHeight - 35;
         DrawRectangleLines(rightX, barY, 120, 15, GRAY);
         float bloodPct = (float)urukBlood / MAX_BLOOD;
         DrawRectangle(rightX + 1, barY + 1, (int)(118 * bloodPct), 13, MAROON);
         DrawText("BLOOD", rightX + 40, barY + 3, 10, WHITE);
-
-        Color cQ = (urukBlood >= COST_GANDALF) ? WHITE : DARKGRAY;
-        Color cW = (urukBlood >= COST_ROHIRRIM) ? WHITE : DARKGRAY;
-
-        DrawText("[Q] GANDALF", rightX + 130, barY - 5, 20, cQ);
-        DrawText("[W] ROHIRRIM", rightX + 280, barY - 5, 20, cW);
-
+        DrawText("[Q] GANDALF", rightX + 130, barY - 5, 20, (urukBlood >= COST_GANDALF) ? WHITE : DARKGRAY);
+        DrawText("[W] ROHIRRIM", rightX + 280, barY - 5, 20, (urukBlood >= COST_ROHIRRIM) ? WHITE : DARKGRAY);
         EndDrawing();
     }
-
-    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll);
-
-    // --- YENÝ TEXTURELARI BOÞALT ---
-    UnloadTexture(texTowerArcher);
-    UnloadTexture(texTowerMelee);
-    UnloadTexture(texTowerIce);
-
-    UnloadTexture(bg); UnloadTexture(texRoad); UnloadTexture(texCity);
-    UnloadTexture(texGandalf);
-
+    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texTowerArcher);
+    UnloadTexture(texTowerMelee); UnloadTexture(texTowerIce); UnloadTexture(bg); UnloadTexture(texRoad);
+    UnloadTexture(texCity); UnloadTexture(texGandalf);
     for (auto& tex : rohirrimFrames) UnloadTexture(tex);
-
-
-    UnloadSound(buildSound);
-    UnloadSound(shootSound);
-    UnloadSound(deathSound);
-    CloseAudioDevice();
-    delete pathTop; delete pathBottom;
-    CloseWindow();
+    UnloadSound(buildSound); UnloadSound(shootSound); UnloadSound(deathSound);
+    CloseAudioDevice(); delete pathTop; delete pathBottom; CloseWindow();
     return 0;
 }

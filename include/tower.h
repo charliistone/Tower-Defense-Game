@@ -1,14 +1,12 @@
-#pragma once
+﻿#pragma once
 #include "raylib.h"
+#include "raymath.h"
 #include "Enemy.h"
 #include "Projectile.h"
 #include <vector>
 
-enum class TowerType {
-    ARCHER,
-    ICE,
-    MELEE
-};
+// Kule Tipleri
+enum class TowerType { ARCHER, MELEE, ICE };
 
 class Tower {
 public:
@@ -16,12 +14,14 @@ public:
 
     void Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile>& projectiles);
     void Draw() const;
+
+    // Etkileşim Fonksiyonları
+    bool IsClicked(Vector2 mousePos) const;
     void Upgrade();
 
+    // Getterlar
     int GetUpgradeCost() const;
-    int GetLevel() const { return level; }
-    int GetCost() const { return cost; }
-    bool IsClicked(Vector2 mousePos) const;
+    int GetLevel() const { return level; } // YENİ: Level bilgisini döndürür
     float GetRange() const { return range; }
     Vector2 GetPosition() const { return position; }
 
@@ -30,10 +30,11 @@ private:
     Texture2D texture;
     TowerType type;
 
-    int level;
+    // İstatistikler
+    int level;      // YENİ: Kule seviyesi
     float range;
-    int damage;
-    float fireRate;
+    float damage;
     float cooldown;
+    float timer;
     int cost;
 };

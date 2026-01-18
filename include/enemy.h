@@ -1,9 +1,7 @@
-#pragma once
+ï»¿#pragma once
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
-
-// DÝKKAT: Buraya ASLA #include "Enemy.h" EKLEME! Sonsuz döngü yapar.
 
 enum class EnemyType { ORC, URUK, TROLL };
 
@@ -22,7 +20,9 @@ public:
     bool ReachedEnd() const { return currentPoint >= path->size() - 1; }
     Vector2 GetPosition() const { return position; }
     float GetRadius() const { return 15.0f; }
+
     int GetManaReward() const { return manaReward; }
+    int GetGoldReward() const { return goldReward; } // YENÄ°: AltÄ±n getter
 
 private:
     Vector2 position;
@@ -38,15 +38,17 @@ private:
     float distanceTraveled;
 
     int manaReward;
+    int goldReward; // YENÄ°: AltÄ±n deÄŸiÅŸkeni
+
     float stunTimer;
     float slowTimer;
     float slowFactor;
     bool frozen;
 
-    // --- ANIMASYON DEÐÝÞKENLERÝ ---
+    // Animasyon
     int frameWidth;
     int frameHeight;
-    int currentFrame;   // Hangi adým karesi? (0, 1, 2)
-    float animTimer;    // Animasyon hýzý
-    int facing;         // Hangi yöne bakýyor? (0:Aþaðý, 1:Sol, 2:Sað, 3:Yukarý)
+    int currentFrame;
+    float animTimer;
+    int facing;
 };

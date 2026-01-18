@@ -1,47 +1,46 @@
-#pragma once
+﻿#pragma once
 #include "raylib.h"
 #include "raymath.h"
 
-// --- FIX: ADD "ARROW" HERE ---
-enum class ProjectileType {
-    ARROW,
-    ICE
-};
+// Mermi Tipleri
+enum class ProjectileType { ARROW, ICE, BOMB };
 
-class Projectile {
-public:
-    Projectile(Vector2 start, Vector2 target, int dmg, ProjectileType t) {
-        position = start;
+struct Projectile {
+    Vector2 position;
+    Vector2 target;
+    Vector2 velocity;
+    int damage;
+    ProjectileType type;
+    bool active;
+
+    // Constructor - Tower.cpp bu yapıyı kullanıyor
+    Projectile(Vector2 pos, Vector2 tar, int dmg, ProjectileType t) {
+        position = pos;
+        target = tar;
         damage = dmg;
         type = t;
         active = true;
-        speed = 600.0f; // Speed of the arrow
 
-        Vector2 dir = Vector2Normalize(Vector2Subtract(target, start));
+        // Hedefe yönelme
+        Vector2 dir = Vector2Normalize(Vector2Subtract(target, position));
+        float speed = 600.0f; // Mermi hızı
         velocity = Vector2Scale(dir, speed);
     }
 
     void Update(float dt) {
         position = Vector2Add(position, Vector2Scale(velocity, dt));
 
-        // Simple cleanup if it goes off screen (Optional)
-        if (position.x < 0 || position.x > 3000 || position.y < 0 || position.y > 3000) {
+        // Ekran dışına çıkarsa sil
+        if (position.x < -50 || position.x > 1330 || position.y < -50 || position.y > 770) {
             active = false;
         }
     }
 
     void Draw() const {
-        if (!active) return;
-        Color c = (type == ProjectileType::ICE) ? SKYBLUE : BLACK;
+        Color c = BLACK;
+        if (type == ProjectileType::ICE) c = SKYBLUE;
+        else if (type == ProjectileType::BOMB) c = RED;
+
         DrawCircleV(position, 5, c);
     }
-
-    Vector2 position;
-    bool active;
-    int damage;
-    ProjectileType type;
-
-private:
-    Vector2 velocity;
-    float speed;
 };

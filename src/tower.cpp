@@ -1,99 +1,70 @@
-#include "Tower.h"
-#include "raylib.h"
-
-extern Sound shootSound;
+ï»¿#include "Tower.h"
 
 Tower::Tower(Vector2 pos, Texture2D tex, TowerType type)
-    : position(pos), texture(tex), type(type),
-    level(1), cooldown(0.0f), range(0.0f), damage(0), fireRate(0.0f), cost(0)
+    : position(pos), texture(tex), type(type), timer(0.0f), level(1)
 {
-    // Kule özelliklerini ayarla
     if (type == TowerType::ARCHER) {
-        range = 200.0f; damage = 5; fireRate = 1.0f; cost = 100;
+        range = 200.0f; damage = 10; cooldown = 1.0f; cost = 100;
     }
     else if (type == TowerType::MELEE) {
-        range = 100.0f; damage = 15; fireRate = 1.5f; cost = 75;
+        range = 100.0f; damage = 20; cooldown = 1.5f; cost = 75;
     }
     else if (type == TowerType::ICE) {
-        range = 150.0f; damage = 2; fireRate = 2.0f; cost = 150;
+        range = 150.0f; damage = 5; cooldown = 2.0f; cost = 150;
     }
 }
 
 void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile>& projectiles) {
-    cooldown -= dt;
-    if (cooldown <= 0.0f) {
-        for (Enemy& e : enemies) {
-            if (!e.IsAlive()) continue;
+    timer += dt;
+    if (timer >= cooldown) {
+        int targetIndex = -1;
 
-            if (CheckCollisionCircles(position, range, e.GetPosition(), e.GetRadius())) {
-
-                // SESÝ BURAYA ALDIK: Herhangi bir kule (Melee dahil) vuruþ yaptýðýnda çalar.
-                PlaySound(shootSound);
-
-                // Saldýrý Türü
-                ProjectileType pType = ProjectileType::ARROW;
-                if (type == TowerType::ICE) pType = ProjectileType::ICE;
-
-                if (type == TowerType::MELEE) {
-                    e.TakeDamage(damage); // Yakýn dövüþ anýnda vurur
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies[i].IsAlive()) {
+                float dist = Vector2Distance(position, enemies[i].GetPosition());
+                if (dist <= range) {
+                    targetIndex = i;
+                    break;
                 }
-                else {
-                    // Ok veya Büyü fýrlat
-                    projectiles.emplace_back(position, e.GetPosition(), damage, pType);
-                }
-
-                cooldown = fireRate;
-                break;
             }
+        }
+
+        if (targetIndex != -1) {
+            timer = 0.0f;
+            ProjectileType pType = ProjectileType::ARROW;
+            if (type == TowerType::ICE) pType = ProjectileType::ICE;
+            else if (type == TowerType::MELEE) pType = ProjectileType::BOMB;
+
+            // Projectile.h iÃ§indeki constructor'Ä± Ã§aÄŸÄ±rÄ±r
+            projectiles.emplace_back(position, enemies[targetIndex].GetPosition(), (int)damage, pType);
         }
     }
 }
 
 void Tower::Draw() const {
-    // Seviye Göstergesi (Tabandaki halkalar)
-    Color ringColor = GRAY;
-    if (level == 2) ringColor = BLUE;
-    if (level >= 3) ringColor = GOLD;
-
-    // Halkanýn konumu (Kulenin tabanýna denk gelmesi için biraz aþaðýda)
-    DrawCircleLines((int)position.x, (int)position.y + 10, 30.0f, Fade(ringColor, 0.5f));
-
-    // --- ÇÝZÝM AYARLARI (9:16 ORANI) ---
-
-    // 1. RENK FÝLTRESÝNÝ KALDIR
-    // Artýk 'if type == ICE tint = BLUE' yok. Kuleler kendi renginde görünsün.
-    Color tint = WHITE;
-
-    // 2. BOYUTLANDIRMA (9:16)
-    // Izgara 64px geniþliðinde. 
-    // 9:16 oraný için yükseklik: (64 / 9) * 16 = yaklaþýk 114px olmalý.
-    float drawWidth = 64.0f;
-    float drawHeight = 114.0f;
-
     Rectangle source = { 0, 0, (float)texture.width, (float)texture.height };
-    Rectangle dest = { position.x, position.y, drawWidth, drawHeight };
+    Rectangle dest = { position.x, position.y, 64, 64 };
+    Vector2 origin = { 32, 32 };
+    DrawTexturePro(texture, source, dest, origin, 0.0f, WHITE);
 
-    // 3. MERKEZ NOKTASI (ORIGIN)
-    // Kulenin "ayaðýnýn" ýzgaraya tam oturmasý için,
-    // Çizim merkezini resmin alt-ortasýna alýyoruz.
-    // Y: drawHeight - 16 (Hafif bir perspektif örtüþmesi için)
-    Vector2 origin = { drawWidth / 2.0f, drawHeight - 20.0f };
-
-    DrawTexturePro(texture, source, dest, origin, 0.0f, tint);
-}
-
-void Tower::Upgrade() {
-    level++;
-    damage += 5;
-    fireRate *= 0.85f; // Daha hýzlý ateþ et
-    range += 20.0f;
-}
-
-int Tower::GetUpgradeCost() const {
-    return cost * level;
+    // Level gÃ¶stergesi (Kule Ã¼zerine kÃ¼Ã§Ã¼k sarÄ± nokta)
+    for (int i = 0; i < level; i++) {
+        DrawCircle((int)position.x - 20 + (i * 10), (int)position.y + 25, 3, YELLOW);
+    }
 }
 
 bool Tower::IsClicked(Vector2 mousePos) const {
-    // Týklama alaný (Kulenin tabanýna yakýn bir daire)
-    return CheckCollisionPointCircle(mousePos, position, 32.0f);
+    return CheckCollisionPointCircle(mousePos, position, 30.0f);
+}
+
+int Tower::GetUpgradeCost() const {
+    return (int)(cost * 0.5f * level) + 50;
+}
+
+void Tower::Upgrade() {
+    if (level >= 5) return;
+    level++;
+    damage *= 1.3f;
+    range += 10.0f;
+    if (cooldown > 0.5f) cooldown *= 0.9f;
 }

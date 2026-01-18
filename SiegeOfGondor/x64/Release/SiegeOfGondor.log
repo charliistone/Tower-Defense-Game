@@ -1,9 +1,7 @@
-﻿  main.cpp
-C:\Users\Anday\Desktop\Tower-Defense-Game\src\main.cpp(376,97): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
-C:\Users\Anday\Desktop\Tower-Defense-Game\src\main.cpp(376,82): warning C4244: 'bağımsız değişken': 'float' - 'int' dönüşümü; veri kaybı olabilir
-  Kod üretiliyor
-  1 of 432 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+﻿  enemy.cpp
+  Generating code
+  2 of 455 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
-  Kodun üretilmesi tamamlandı
-  SiegeOfGondor.vcxproj -> C:\Users\Anday\Desktop\Tower-Defense-Game\x64\Release\SiegeOfGondor.exe
+  Finished generating code
+  SiegeOfGondor.vcxproj -> C:\Users\kalif\source\repos\Tower-Defense-Game\x64\Release\SiegeOfGondor.exe
