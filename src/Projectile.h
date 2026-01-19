@@ -2,7 +2,6 @@
 #include "raylib.h"
 #include "raymath.h"
 
-// --- FIX: ADD "ARROW" HERE ---
 enum class ProjectileType {
     ARROW,
     ICE
@@ -15,7 +14,7 @@ public:
         damage = dmg;
         type = t;
         active = true;
-        speed = 600.0f; // Speed of the arrow
+        speed = 600.0f; 
 
         Vector2 dir = Vector2Normalize(Vector2Subtract(target, start));
         velocity = Vector2Scale(dir, speed);
@@ -24,7 +23,7 @@ public:
     void Update(float dt) {
         position = Vector2Add(position, Vector2Scale(velocity, dt));
 
-        // Simple cleanup if it goes off screen (Optional)
+        
         if (position.x < 0 || position.x > 3000 || position.y < 0 || position.y > 3000) {
             active = false;
         }
