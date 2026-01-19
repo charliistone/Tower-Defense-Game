@@ -55,13 +55,11 @@ The project is configured as a Visual Studio Solution.
 5. The executable will be generated in the `build` or `bin` directory.
 
 ### Controls
-* **Mouse Left-Click:** Build towers / Interact with UI.
-* **Mouse Right-Click:** Cancel placement / Select existing tower for upgrades.
-* **Spacebar:** Manually trigger the next wave.
+* **Mouse Left-Click:** Build towers.
 * **1 / 2 / 3:** Select Tower Type (Archer / Melee / Ice).
 * **Q:** Activate Ability: Gandalf.
 * **W:** Activate Ability: Rohirrim.
-* **P / Esc:** Pause Game / Main Menu.
+* **Esc:** Quit the game.
 
 ## Development Team
 **University:** Ankara Bilim University
