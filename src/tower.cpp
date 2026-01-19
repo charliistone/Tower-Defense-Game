@@ -27,7 +27,9 @@ void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile
         for (Enemy& e : enemies) {
             if (!e.IsAlive()) continue;
 
-            
+            /* TARGET ACQUISITION :
+             Checks if the enemy is within the tower's effective range using a circular collision check.
+             This is an efficient check (Euclidean distance) suitable for high-frequency updates.*/
             if (CheckCollisionCircles(position, range, e.GetPosition(), e.GetRadius())) {
 
                 ProjectileType pType = ProjectileType::ARROW;
@@ -43,7 +45,11 @@ void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile
                     projScale = 0.2f;
                 }
 
-                
+                /* ATTACK LOGIC DISTINCTION :
+                 MELEE towers act as "Hitscan" weapons; they apply damage immediately to the target 
+                 and spawn a projectile only for visual effects.
+                 RANGED towers (Archer/Ice) spawn a physical projectile entity that must travel 
+                 to the target before damage is calculated.*/
                 if (type == TowerType::MELEE) {
                    
                     e.TakeDamage(damage);
@@ -78,7 +84,10 @@ void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile
                         projScale        
                     );
                 }
-
+                /* RATE OF FIRE LIMITER :
+                 Reset the cooldown timer and BREAK the loop immediately. 
+                 This ensures the tower attacks only ONE enemy per frame, preventing it from 
+                 damaging the entire wave simultaneously.*/
                 cooldown = fireRate;
                 break; 
             }
@@ -87,7 +96,10 @@ void Tower::Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile
 }
 
 void Tower::Draw() const {
-    
+    /* RENDERING OFFSET :
+     The 'origin' vector {32, 100} anchors the texture drawing to the bottom-center 
+     of the sprite. This ensures the tower appears to stand "on" the tile 
+     rather than floating above it in the isometric perspective.*/
     DrawTexturePro(texture,
         { 0, 0, (float)texture.width, (float)texture.height },
         { position.x, position.y, 64, 114 },

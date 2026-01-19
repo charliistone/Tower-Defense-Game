@@ -9,7 +9,10 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
     
     if (path && !path->empty()) position = (*path)[0];
 
-    
+    /* STATS INITIALIZATION :
+     Defines the base attributes (Health, Speed, Reward, Damage to Castle) for each enemy type.
+     "speed" is in pixels per second. "manaReward" is the amount of Uruk Blood gained on kill.
+     "damage" is how much castle health is lost if this enemy reaches the end.*/
     if (type == EnemyType::ORC) {
         maxHealth = 20; speed = 120.0f; manaReward = 5;
         damage = 10; 
@@ -52,7 +55,11 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
 void Enemy::Update(float dt) {
     if (!alive) return;
 
-   
+    /* STATUS EFFECT LOGIC :
+     Prioritizes Stun over Slow.
+     If Stunned: Speed is set to 0.
+     If Slowed (and not stunned): Speed is multiplied by a factor (e.g., 0.5 for 50% slow).
+     The timers are decremented by 'dt' (delta time) every frame.*/
     float actualSpeed = speed;
     if (stunTimer > 0.0f) {
         stunTimer -= dt;
@@ -67,13 +74,19 @@ void Enemy::Update(float dt) {
         }
     }
 
-   
+     /* PATH FOLLOWING ALGORITHM :
+     Calculates the direction vector towards the current target node in the path.
+     If the enemy is close enough to the target (dist <= moveStep), it snaps to the target
+     and increments the 'currentPoint' index to target the next node in the path vector.
+     Otherwise, it moves along the normalized direction vector.*/
     if (path && currentPoint < path->size()) {
         Vector2 target = (*path)[currentPoint];
         Vector2 dir = Vector2Subtract(target, position);
         float dist = Vector2Length(dir);
 
-        
+        /* ANIMATION STATE :
+         Determines the 'facing' direction (0=Down, 1=Left, 2=Right, 3=Up) based on the movement vector.
+         This index corresponds to the row in the sprite sheet.*/
         if (fabs(dir.x) > fabs(dir.y)) {
             facing = (dir.x > 0) ? 2 : 1; 
         }
@@ -139,7 +152,11 @@ void Enemy::Draw() const {
     int offset = 15;
     if (type == EnemyType::GROND) offset = 40;
     else if (type == EnemyType::NAZGUL) offset = 30;
-
+    
+    /* RENDER LOGIC :
+     Draws the enemy sprite centered on its logical position.
+     Also renders a dynamic health bar above the sprite, scaling its green width 
+     based on the current health percentage.*/
     float pct = (float)health / (float)maxHealth;
     int barWidth = (int)drawSize;
     DrawRectangle((int)position.x - barWidth / 2, (int)position.y - (int)(drawSize / 2) - 10, barWidth, 6, RED);

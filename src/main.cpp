@@ -47,7 +47,9 @@ struct LevelData {
     std::vector<std::string> storyLines;
 };
 
-
+// Recursive Depth-First Search (DFS) algorithm to find all valid paths from start to finish.
+// It marks tiles as visited (-1) to prevent loops, explores all 4 cardinal directions,
+// and backtracks (resets tile value) to allow finding alternative routes.
 void FindAllPathsRecursive(int x, int y, int cols, int rows,
     std::vector<std::vector<int>>& tileMap,
     std::vector<Vector2> currentPath,
@@ -99,7 +101,8 @@ std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::v
     return allPaths;
 }
 
-
+/* Immediate Mode GUI implementation : Handles collision detection, visual state changes
+ (hover/click), and audio feedback in a single pass. Returns true only on mouse release.*/
 bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D texHover, Vector2 mousePos) {
     bool hover = CheckCollisionPointRec(mousePos, rect);
     bool clicked = false;
@@ -141,6 +144,8 @@ int GetTowerCost(TowerType type) {
     return 100;
 }
 
+/* Manages the lifecycle of blood effects.Iterates through active particles, updates animation frames based on delta time, and automatically culls
+inactive particles from the vector to manage memory.*/
 struct BloodParticle { Vector2 position; int currentFrame; float animTimer; bool active; };
 class BloodManager {
 public:
@@ -214,7 +219,7 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "Siege of Gondor - Master Edition");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
     Audio::Init();
 
@@ -360,10 +365,10 @@ int main(void)
         lvl.paths = GeneratePathsFromMap(lvl.tileMap);
 
         lvl.waves.push_back({ 10, EnemyType::ORC, 1.0f, 1.1f, 5 });
-        lvl.waves.push_back({ 15, EnemyType::ORC, 0.9f, 1.2f, 10 });
         lvl.waves.push_back({ 8, EnemyType::URUK, 1.5f, 1.0f, 10 });
         lvl.waves.push_back({ 2, EnemyType::COMMANDER, 2.0f, 1.0f, 0 });
         lvl.waves.push_back({ 4, EnemyType::TROLL, 5.0f, 1.0f, 20 });
+        lvl.waves.push_back({ 3, EnemyType::GROND, 5.0f, 1.0f, 50 });
 
         lvl.storyLines = {
             "CHAPTER 2: THE LONG ROAD",
@@ -407,7 +412,7 @@ int main(void)
         lvl.waves.push_back({ 6,  EnemyType::TROLL, 4.0f, 1.0f, 50 });
         lvl.waves.push_back({ 25, EnemyType::URUK, 0.7f, 1.3f, 30 }); 
         lvl.waves.push_back({ 5, EnemyType::COMMANDER, 2.0f, 1.0f, 0 });
-        lvl.waves.push_back({ 10,  EnemyType::TROLL, 3.0f, 1.1f, 60 });
+        lvl.waves.push_back({ 3, EnemyType::GROND, 5.0f, 1.0f, 100 });
         lvl.waves.push_back({ 1,  EnemyType::NAZGUL, 5.0f, 1.5f, 500 });
 
         lvl.storyLines = {
@@ -449,11 +454,18 @@ int main(void)
     float introTimer = 0.0f;
     int introTextIndex = 0;
 
+    /* MAIN GAME LOOP :
+    Uses Delta Time (dt) for all movement calculations to ensure the game runs 
+    at the same speed on high refresh rate monitors (144hz+) as it does on 60hz.*/
     while (!WindowShouldClose())
     {
         float dt = GetFrameTime();
 
-        
+        /* CALCULATE VIRTUAL MOUSE COORDINATES :
+         Since the game renders to a fixed resolution (1280x720) but the window is resizable,
+         we must scale the physical mouse coordinates to match the virtual game world.
+         This ensures UI clicks and tower placement work correctly regardless of window size.*/
+
         float scale = MIN((float)GetScreenWidth() / gameScreenWidth, (float)GetScreenHeight() / gameScreenHeight);
 
        
@@ -519,7 +531,10 @@ int main(void)
             break;
         }
 
-      
+        /* DRAW RENDER TEXTURE TO SCREEN :
+         Draws the fixed-resolution game texture (target) onto the actual screen window.
+         It uses the calculated scale factor to maintain the aspect ratio, adding black bars
+         (letterboxing) if the window aspect ratio doesn't match the game's.*/
         switch (currentScreen)
         {
         case GameScreen::TITLE:
@@ -619,6 +634,10 @@ int main(void)
             if (IsKeyPressed(KEY_TWO))   selectedTower = TowerType::MELEE;
             if (IsKeyPressed(KEY_THREE)) selectedTower = TowerType::ICE;
 
+            /* TOWER PLACEMENT LOGIC :
+             1. Snaps the mouse position to the nearest grid tile.
+             2. Validates placement: checks map bounds, collision with paths (tileMap != 0), 
+              collision with existing towers, and sufficient gold.*/
             int gridX = (int)(mouseWorldPos.x / TILE_SIZE);
             int gridY = (int)(mouseWorldPos.y / TILE_SIZE);
             Vector2 snapPos = { (float)gridX * TILE_SIZE + TILE_SIZE / 2, (float)gridY * TILE_SIZE + TILE_SIZE / 2 };
