@@ -1,16 +1,16 @@
 ﻿#include "Audio.h"
 
-// Statik değişkenleri tanımla
+
 std::map<std::string, Sound> Audio::sounds;
 std::map<std::string, Music> Audio::musics;
 Music* Audio::currentMusic = nullptr;
 
 void Audio::Init() {
-    InitAudioDevice(); // Raylib ses motorunu başlat
+    InitAudioDevice(); 
 }
 
 void Audio::Close() {
-    // Tüm sesleri bellekten sil
+    
     for (auto& pair : sounds) UnloadSound(pair.second);
     for (auto& pair : musics) UnloadMusicStream(pair.second);
     sounds.clear();
@@ -37,8 +37,8 @@ void Audio::LoadMusic(std::string name, const char* path) {
 
 void Audio::PlaySFX(std::string name, float volume, float pitch) {
     if (sounds.find(name) != sounds.end()) {
-        SetSoundVolume(sounds[name], volume); // Ses şiddeti
-        SetSoundPitch(sounds[name], pitch);   // Ses inceliği
+        SetSoundVolume(sounds[name], volume); 
+        SetSoundPitch(sounds[name], pitch);  
         PlaySound(sounds[name]);
     }
 }
@@ -50,8 +50,7 @@ void Audio::PlayMusic(std::string name) {
             currentMusic = &musics[name];
             PlayMusicStream(*currentMusic);
 
-            // --- HATA BURADAYDI, DÜZELTİLDİ ---
-            // Başına :: koyarak "Raylib'in fonksiyonunu kullan" dedik
+            
             ::SetMusicVolume(*currentMusic, 0.5f);
         }
     }
@@ -63,7 +62,7 @@ void Audio::StopMusic() {
 
 void Audio::SetMusicVolume(float volume) {
     if (currentMusic) {
-        // Burada da Raylib fonksiyonunu çağırmak için :: kullanıyoruz
+        
         ::SetMusicVolume(*currentMusic, volume);
     }
 }
