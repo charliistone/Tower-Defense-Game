@@ -1,8 +1,1 @@
-﻿  Projectile.cpp
-  tower.cpp
-C:\Users\hp\Documents\SiegeOfGondor\SiegeOfGondor\src\tower.cpp(40,41): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-C:\Users\hp\Documents\SiegeOfGondor\SiegeOfGondor\src\tower.cpp(40,29): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
-  Generating Code...
-raylib.lib(rcore.obj) : error LNK2005: CloseWindow already defined in user32.lib(USER32.dll)
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-C:\Users\hp\Documents\SiegeOfGondor\x64\Debug\SiegeOfGondor.exe : fatal error LNK1169: one or more multiply defined symbols found
+﻿  SiegeOfGondor.vcxproj -> C:\Users\kalif\source\repos\x64\Debug\SiegeOfGondor.exe

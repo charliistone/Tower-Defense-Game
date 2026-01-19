@@ -9,13 +9,13 @@ Tower::Tower(Vector2 pos, Texture2D tex, Texture2D projTex, TowerType type)
 {
     // Kule Tipine Göre Özellikler
     if (type == TowerType::ARCHER) {
-        range = 250.0f; damage = 5; fireRate = 1.0f; cost = 100;
+        range = 250.0f; damage = 20; fireRate = 1.0f; cost = 100;
     }
     else if (type == TowerType::MELEE) {
         range = 100.0f; damage = 15; fireRate = 1.5f; cost = 120;
     }
     else if (type == TowerType::ICE) {
-        range = 180.0f; damage = 2; fireRate = 2.0f; cost = 150;
+        range = 180.0f; damage = 7.5; fireRate = 2.0f; cost = 150;
     }
 }
 

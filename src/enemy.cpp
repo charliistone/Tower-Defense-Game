@@ -23,14 +23,12 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
         damage = 100; // hasarı belirler
     }
     else if (type == EnemyType::GROND) {
-        maxHealth = 1000; 
-        speed = 25.0f;    
-        manaReward = 150; 
+        maxHealth = 1000; speed = 25.0f;manaReward = 500; 
         damage = 500; 
     }
     else if (type == EnemyType::NAZGUL) {
         maxHealth = 2500; // Grond'dan bile fazla can
-        speed = 60.0f;    // Grond'dan hızlı (Uçuyor/Atlı)
+        speed = 50.0f;    // Grond'dan hızlı (Uçuyor/Atlı)
         manaReward = 1000;
         damage = 9999;    // Dokunduğu an oyun biter
     }

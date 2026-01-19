@@ -322,7 +322,7 @@ int main(void)
         lvl.waves.push_back({ 12, EnemyType::ORC, 1.0f, 1.1f, 0 });
         lvl.waves.push_back({ 5, EnemyType::URUK, 2.0f, 0.9f, 10 });
         lvl.waves.push_back({ 15, EnemyType::ORC, 0.8f, 1.2f, 5 });
-        lvl.waves.push_back({ 8, EnemyType::URUK, 1.5f, 1.0f, 20 });
+        lvl.waves.push_back({ 15, EnemyType::URUK, 1.5f, 1.0f, 20 });
 
         lvl.storyLines = {
             "CHAPTER 1: THE OUTSKIRTS",
@@ -338,7 +338,7 @@ int main(void)
         LevelData lvl; lvl.levelID = 2; lvl.name = "Level 2: Long Road";
         lvl.background = LoadTexture("assets/sprites/environment/lvl2_bg.png");
         lvl.bgColor = DARKGREEN;
-        lvl.startGold = 500;
+        lvl.startGold = 600;
         int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
         int design[12][30] = {
@@ -360,10 +360,10 @@ int main(void)
         lvl.paths = GeneratePathsFromMap(lvl.tileMap);
 
         lvl.waves.push_back({ 10, EnemyType::ORC, 1.0f, 1.1f, 5 });
-        lvl.waves.push_back({ 15, EnemyType::ORC, 0.8f, 1.2f, 10 });
-        lvl.waves.push_back({ 5, EnemyType::URUK, 1.5f, 1.0f, 10 });
-        lvl.waves.push_back({ 8, EnemyType::URUK, 1.2f, 1.1f, 15 });
-        lvl.waves.push_back({ 1, EnemyType::TROLL, 5.0f, 1.0f, 20 });
+        lvl.waves.push_back({ 15, EnemyType::ORC, 0.9f, 1.2f, 10 });
+        lvl.waves.push_back({ 8, EnemyType::URUK, 1.5f, 1.0f, 10 });
+        lvl.waves.push_back({ 2, EnemyType::COMMANDER, 2.0f, 1.0f, 0 });
+        lvl.waves.push_back({ 4, EnemyType::TROLL, 5.0f, 1.0f, 20 });
 
         lvl.storyLines = {
             "CHAPTER 2: THE LONG ROAD",
@@ -385,11 +385,11 @@ int main(void)
         lvl.castlePos = { 2700.0f, 90.0f }; lvl.castleScale = 0.5f;
         int design[12][50] = {
             {0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {2,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {2,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0},
             {2,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -403,10 +403,10 @@ int main(void)
 
         lvl.waves.push_back({ 20, EnemyType::ORC, 0.8f, 1.0f, 10 });
         lvl.waves.push_back({ 15, EnemyType::URUK, 1.0f, 1.1f, 20 });
-        lvl.waves.push_back({ 30, EnemyType::ORC, 0.5f, 1.1f, 15 });
+        lvl.waves.push_back({ 25, EnemyType::ORC, 0.6f, 1.1f, 15 });
         lvl.waves.push_back({ 6,  EnemyType::TROLL, 4.0f, 1.0f, 50 });
-        lvl.waves.push_back({ 25, EnemyType::URUK, 0.7f, 1.3f, 30 });
-        lvl.waves.push_back({ 50, EnemyType::ORC, 0.4f, 1.4f, 20 });
+        lvl.waves.push_back({ 25, EnemyType::URUK, 0.7f, 1.3f, 30 }); 
+        lvl.waves.push_back({ 5, EnemyType::COMMANDER, 2.0f, 1.0f, 0 });
         lvl.waves.push_back({ 10,  EnemyType::TROLL, 3.0f, 1.1f, 60 });
         lvl.waves.push_back({ 1,  EnemyType::NAZGUL, 5.0f, 1.5f, 500 });
 
@@ -417,39 +417,6 @@ int main(void)
             "This is our final stand.",
             "YOU SHALL NOT PASS!"
         };
-        allLevels.push_back(lvl);
-    }
-
-    // --- TEST LEVEL ---
-    {
-        LevelData lvl; lvl.levelID = 4; lvl.name = "Level 4: TEST";
-        lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
-        lvl.bgColor = DARKGREEN;
-        lvl.startGold = 400;
-        int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
-        lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
-        int design[12][30] = {
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-        };
-        lvl.tileMap.resize(MAP_ROWS);
-        for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
-        lvl.paths = GeneratePathsFromMap(lvl.tileMap);
-        // lvl.waves.push_back({ 1, EnemyType::ORC, 1.5f, 1.0f, 0 });
-        // lvl.waves.push_back({ 1, EnemyType::NAZGUL, 2.0f, 1.0f, 0 });
-        lvl.waves.push_back({ 1, EnemyType::COMMANDER, 2.0f, 1.0f, 0 });
-
-        lvl.storyLines = { "TEST", "", "", "" };
         allLevels.push_back(lvl);
     }
 
@@ -757,7 +724,7 @@ int main(void)
                 enemies[i].Update(dt);
                 if (!enemies[i].IsAlive()) {
                     gold += 15;
-                    urukBlood += (int)(enemies[i].GetManaReward() * 0.5f);
+                    urukBlood += enemies[i].GetManaReward() * 0.4f;
                     if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
                     Audio::PlaySFX("orc_death", 0.1f, GetRandomValue(80, 120) / 100.0f);
                     Audio::PlaySFX("gold_gain", 0.1f, 1.0f + GetRandomValue(0, 2) / 10.0f);
@@ -787,7 +754,7 @@ int main(void)
                         if (GetRandomValue(0, 4) == 0) bloodSystem.Spawn(e.GetPosition());
                         if (!e.IsAlive()) {
                             if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) { gold += 50; urukBlood += 20; }
-                            else { gold += 3; urukBlood += (int)(e.GetManaReward() * 0.1f); }
+                            else { gold += 3; urukBlood += (int)(e.GetManaReward() * 0.12f); }
                             if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
                         }
                     }
