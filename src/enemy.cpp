@@ -34,6 +34,12 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
         manaReward = 1000;
         damage = 9999;    // Dokunduğu an oyun biter
     }
+    else if (type == EnemyType::COMMANDER) {
+        maxHealth = 600;  
+        speed = 60.0f;    
+        manaReward = 150; 
+        damage = 50;      
+    }
 
     // --- ZORLUK AYARLAMASI ---
     maxHealth += hpBonus;       // Level bonusunu ekle
@@ -109,6 +115,9 @@ void Enemy::Draw() const {
     if (type == EnemyType::TROLL) drawSize = 64.0f;
     else if (type == EnemyType::GROND) drawSize = 100.0f;
     else if (type == EnemyType::NAZGUL) drawSize = 130.0f; 
+    else if (type == EnemyType::COMMANDER) {
+        drawSize = 60.0f; // Standart (48) askerlerden büyük, Troll (64) kadar
+    }
 
     Rectangle source;
     if (texture.width == texture.height) { // Tek kare resimse

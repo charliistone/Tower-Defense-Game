@@ -6,6 +6,10 @@
 #include "Audio.h" 
 #include <vector>
 #include <string>
+#include <algorithm> // MIN için gerekli olabilir ama biz makro yazacağız
+
+// --- YARDIMCI MAKRO ---
+#define MIN(a, b) ((a)<(b)?(a):(b))
 
 // --- OYUN DURUMLARI ---
 enum class GameScreen { TITLE, LEVEL_SELECT, LEVEL_INTRO, GAMEPLAY, VICTORY, GAMEOVER };
@@ -43,28 +47,22 @@ struct LevelData {
     std::vector<std::string> storyLines;
 };
 
-// --- RECURSIVE PATH FINDER (YENİ) ---
-// Bu fonksiyon tüm yol ayrımlarını tarar ve hepsini kaydeder.
+// --- RECURSIVE PATH FINDER ---
 void FindAllPathsRecursive(int x, int y, int cols, int rows,
     std::vector<std::vector<int>>& tileMap,
     std::vector<Vector2> currentPath,
     std::vector<std::vector<Vector2>*>& outPaths)
 {
-    // 1. Mevcut konumu yola ekle
     currentPath.push_back({ (float)x * TILE_SIZE + TILE_SIZE / 2, (float)y * TILE_SIZE + TILE_SIZE / 2 });
 
-    // 2. Bitiş noktasına (3) ulaştık mı?
     if (tileMap[y][x] == 3) {
-        // Tamamlanmış yolu listeye ekle
         outPaths.push_back(new std::vector<Vector2>(currentPath));
         return;
     }
 
-    // 3. Geçici olarak bu kareyi "ziyaret edildi" (-1) işaretle ki geri dönmesin
     int originalValue = tileMap[y][x];
     tileMap[y][x] = -1;
 
-    // 4. Komşuları kontrol et (Sağ, Aşağı, Sol, Yukarı)
     int dx[] = { 1, 0, -1, 0 };
     int dy[] = { 0, 1, 0, -1 };
 
@@ -72,17 +70,12 @@ void FindAllPathsRecursive(int x, int y, int cols, int rows,
         int nx = x + dx[i];
         int ny = y + dy[i];
 
-        // Harita sınırları içinde mi?
         if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
-            // Yürünebilir yol (1) veya Bitiş (3) mü?
             if (tileMap[ny][nx] == 1 || tileMap[ny][nx] == 3) {
-                // O yöne doğru yeni bir dal (branch) başlat
                 FindAllPathsRecursive(nx, ny, cols, rows, tileMap, currentPath, outPaths);
             }
         }
     }
-
-    // 5. Backtrack: İşaretimizi geri al (Diğer rotalar burayı kullanabilsin)
     tileMap[y][x] = originalValue;
 }
 
@@ -93,27 +86,21 @@ std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::v
 
     int rows = map.size();
     int cols = map[0].size();
-
-    // Haritanın değiştirilebilir bir kopyasını al (işaretleme yapmak için)
     std::vector<std::vector<int>> tempMap = map;
 
     for (int y = 0; y < rows; y++) {
         for (int x = 0; x < cols; x++) {
-            if (tempMap[y][x] == 2) { // Başlangıç noktası (2)
+            if (tempMap[y][x] == 2) {
                 std::vector<Vector2> initialPath;
-                // Recursive aramayı başlat
                 FindAllPathsRecursive(x, y, cols, rows, tempMap, initialPath, allPaths);
             }
         }
     }
-
-    // Eğer hiç yol bulamazsa boş döner, bulursa tüm alternatifleri döndürür.
     return allPaths;
 }
 
-// --- UI BUTON ---
-bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D texHover) {
-    Vector2 mousePos = GetMousePosition();
+// --- UI BUTON (Mouse Pozisyonu Parametresi Eklendi) ---
+bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D texHover, Vector2 mousePos) {
     bool hover = CheckCollisionPointRec(mousePos, rect);
     bool clicked = false;
     if (hover) {
@@ -142,18 +129,16 @@ bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D 
     return clicked;
 }
 
-// [DENGELEME] Kulelerin vuruş mesafelerini buradan değiştirin.
 float GetTowerRange(TowerType type) {
-    if (type == TowerType::ARCHER) return 250.0f; // Okçu Menzili
-    if (type == TowerType::ICE) return 180.0f;    // Buz Kulesi Menzili
-    return 100.0f; // Melee (Şövalye) Menzili
+    if (type == TowerType::ARCHER) return 250.0f;
+    if (type == TowerType::ICE) return 180.0f;
+    return 100.0f;
 }
 
-// [DENGELEME] Kulelerin altın maliyetlerini buradan değiştirin.
 int GetTowerCost(TowerType type) {
-    if (type == TowerType::ARCHER) return 100; // Okçu Fiyatı
-    if (type == TowerType::ICE) return 150;    // Buz Kulesi Fiyatı
-    return 100; // Melee (Şövalye) Fiyatı
+    if (type == TowerType::ARCHER) return 100;
+    if (type == TowerType::ICE) return 150;
+    return 100;
 }
 
 struct BloodParticle { Vector2 position; int currentFrame; float animTimer; bool active; };
@@ -212,29 +197,38 @@ struct Rohirrim {
     }
 };
 
-// [DENGELEME] Yeteneklerin ayarları
-const int MAX_BLOOD = 100;      // Maksimum birikebilecek kan (mana) miktarı
-const int COST_GANDALF = 40;    // Gandalf yeteneğinin bedeli
-const int COST_ROHIRRIM = 60;   // Rohirrim yeteneğinin bedeli
+const int MAX_BLOOD = 100;
+const int COST_GANDALF = 40;
+const int COST_ROHIRRIM = 60;
 
 // --- MAIN ---
 int main(void)
 {
-    const int screenWidth = 1280;
-    const int screenHeight = 720;
+    // [FIX 1] Sanal ekran boyutlarını tanımladık
+    const int gameScreenWidth = 1280;
+    const int gameScreenHeight = 720;
+
+    // Pencere başlangıç boyutu
+    int screenWidth = 1280;
+    int screenHeight = 720;
+
     InitWindow(screenWidth, screenHeight, "Siege of Gondor - Master Edition");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 
-    // SES SİSTEMİNİ BAŞLAT
     Audio::Init();
+
+    // Sanal Ekran (RenderTexture)
+    RenderTexture2D target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
     // SESLERİ YÜKLE
     Audio::LoadMusic("music_menu", "assets/sounds/menu_theme.mp3");
     Audio::LoadMusic("music_level1", "assets/sounds/music_level1.mp3");
-    Audio::LoadMusic("music_level2", "assets/sounds/music_level2.mp3"); // .wav ise wav yapın
+    Audio::LoadMusic("music_level2", "assets/sounds/music_level2.wav");
     Audio::LoadMusic("music_level3", "assets/sounds/music_level3.mp3");
-    Audio::LoadMusic("game_over", "assets/sounds/game_over.mp3"); // .wav varsayıldı
-    Audio::LoadMusic("victory_jingle", "assets/sounds/victory_jingle.mp3");
+    Audio::LoadMusic("game_over", "assets/sounds/game_over.mp3");
+    Audio::LoadMusic("victory_jingle", "assets/sounds/victory_jingle.wav");
     Audio::LoadMusic("music_boss", "assets/sounds/nazgul_boss.mp3");
 
     Audio::LoadSFX("arrow_shoot", "assets/sounds/arrow_shoot.wav");
@@ -242,7 +236,7 @@ int main(void)
     Audio::LoadSFX("arrow_hit", "assets/sounds/arrow_hit.wav");
     Audio::LoadSFX("ice_hit", "assets/sounds/ice_hit.wav");
     Audio::LoadSFX("magic_shoot", "assets/sounds/magic.wav");
-    Audio::LoadSFX("sword_hit", "assets/sounds/sword.wav");
+    Audio::LoadSFX("sword_hit", "assets/sounds/spear_hit.wav");
     Audio::LoadSFX("orc_death", "assets/sounds/orc_death.wav");
     Audio::LoadSFX("build_tower", "assets/sounds/build.wav");
     Audio::LoadSFX("ui_click", "assets/sounds/click.wav");
@@ -259,8 +253,6 @@ int main(void)
     Audio::LoadSFX("orc_walk", "assets/sounds/orc_walk.wav");
     Audio::LoadSFX("heavy_walk", "assets/sounds/grond_walk.wav");
 
-    Audio::LoadSFX("nazgul_scream", "assets/sounds/nazgul_scream.wav");
-
     // GÖRSELLERİ YÜKLE
     Texture2D texMenuBg = LoadTexture("assets/ui/menu_bg.png");
     Texture2D texVictoryBg = LoadTexture("assets/ui/victory_bg.png");
@@ -273,6 +265,7 @@ int main(void)
     Texture2D texUruk = LoadTexture("assets/sprites/enemies/uruk.png");
     Texture2D texTroll = LoadTexture("assets/sprites/enemies/troll.png");
     Texture2D texGrond = LoadTexture("assets/sprites/enemies/grond.png");
+    Texture2D texCommander = LoadTexture("assets/sprites/enemies/commander.png");
     Texture2D texNazgul = LoadTexture("assets/sprites/enemies/nazgul.png");
 
     Texture2D texRoad = LoadTexture("assets/sprites/environment/road_texture.png");
@@ -304,10 +297,7 @@ int main(void)
         LevelData lvl; lvl.levelID = 1; lvl.name = "Level 1: Outskirts";
         lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
         lvl.bgColor = DARKGREEN;
-
-        // [DENGELEME] Başlangıç Parası
         lvl.startGold = 400;
-
         int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
         int design[12][30] = {
@@ -340,19 +330,15 @@ int main(void)
             "They are testing our defenses.",
             "Hold them off before they reach the main gate."
         };
-
         allLevels.push_back(lvl);
     }
 
-    // --- LEVEL 2: LONG ROAD ---
+    // --- LEVEL 2 ---
     {
         LevelData lvl; lvl.levelID = 2; lvl.name = "Level 2: Long Road";
         lvl.background = LoadTexture("assets/sprites/environment/lvl2_bg.png");
         lvl.bgColor = DARKGREEN;
-
-        // [DENGELEME] Başlangıç Parası
         lvl.startGold = 500;
-
         int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
         int design[12][30] = {
@@ -364,8 +350,8 @@ int main(void)
             {0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0},
-            {0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {2,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
         };
@@ -373,13 +359,11 @@ int main(void)
         for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
         lvl.paths = GeneratePathsFromMap(lvl.tileMap);
 
-        // [DENGELEME] WAVE AYARLARI
-        // { Adet, Tip, Doğma Aralığı (sn), Hız Çarpanı, Ekstra Can }
-        lvl.waves.push_back({ 10, EnemyType::ORC, 1.0f, 1.1f, 5 });    // Dalga 1
-        lvl.waves.push_back({ 15, EnemyType::ORC, 0.8f, 1.2f, 10 });   // Dalga 2
-        lvl.waves.push_back({ 5, EnemyType::URUK, 1.5f, 1.0f, 10 });   // Dalga 3
-        lvl.waves.push_back({ 8, EnemyType::URUK, 1.2f, 1.1f, 15 });   // Dalga 4
-        lvl.waves.push_back({ 1, EnemyType::TROLL, 5.0f, 1.0f, 20 });  // Dalga 5 (Mini Boss)
+        lvl.waves.push_back({ 10, EnemyType::ORC, 1.0f, 1.1f, 5 });
+        lvl.waves.push_back({ 15, EnemyType::ORC, 0.8f, 1.2f, 10 });
+        lvl.waves.push_back({ 5, EnemyType::URUK, 1.5f, 1.0f, 10 });
+        lvl.waves.push_back({ 8, EnemyType::URUK, 1.2f, 1.1f, 15 });
+        lvl.waves.push_back({ 1, EnemyType::TROLL, 5.0f, 1.0f, 20 });
 
         lvl.storyLines = {
             "CHAPTER 2: THE LONG ROAD",
@@ -388,19 +372,15 @@ int main(void)
             "Ambush their vanguards on the road!",
             "Beware of the Trolls."
         };
-
         allLevels.push_back(lvl);
     }
 
-    // --- LEVEL 3: ZOR ---
+    // --- LEVEL 3 ---
     {
         LevelData lvl; lvl.levelID = 3; lvl.name = "Level 3: The Siege";
         lvl.background = LoadTexture("assets/sprites/environment/lvl3_bg.png");
         lvl.bgColor = DARKGREEN;
-
-        // [DENGELEME] Başlangıç Parası
         lvl.startGold = 700;
-
         int width = 50; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 2700.0f, 90.0f }; lvl.castleScale = 0.5f;
         int design[12][50] = {
@@ -421,16 +401,14 @@ int main(void)
         for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
         lvl.paths = GeneratePathsFromMap(lvl.tileMap);
 
-        // [DENGELEME] WAVE AYARLARI
-        // { Adet, Tip, Doğma Aralığı (sn), Hız Çarpanı, Ekstra Can }
-        lvl.waves.push_back({ 20, EnemyType::ORC, 0.8f, 1.0f, 10 });  // Wave 1: The Vanguard
-        lvl.waves.push_back({ 15, EnemyType::URUK, 1.0f, 1.1f, 20 }); // Wave 2: Heavy Infantry
-        lvl.waves.push_back({ 30, EnemyType::ORC, 0.5f, 1.1f, 15 });  // Wave 3: The Swarm
-        lvl.waves.push_back({ 6,  EnemyType::TROLL, 4.0f, 1.0f, 50 });// Wave 4: Wall Breakers
-        lvl.waves.push_back({ 25, EnemyType::URUK, 0.7f, 1.3f, 30 }); // Wave 5: Elite Guard
-        lvl.waves.push_back({ 50, EnemyType::ORC, 0.4f, 1.4f, 20 });  // Wave 6: Endless Night
-        lvl.waves.push_back({ 10,  EnemyType::TROLL, 3.0f, 1.1f, 60 });// Wave 7: Final Assault
-        lvl.waves.push_back({ 1,  EnemyType::NAZGUL, 5.0f, 1.5f, 500 }); // Wave 8: THE WITCH KING
+        lvl.waves.push_back({ 20, EnemyType::ORC, 0.8f, 1.0f, 10 });
+        lvl.waves.push_back({ 15, EnemyType::URUK, 1.0f, 1.1f, 20 });
+        lvl.waves.push_back({ 30, EnemyType::ORC, 0.5f, 1.1f, 15 });
+        lvl.waves.push_back({ 6,  EnemyType::TROLL, 4.0f, 1.0f, 50 });
+        lvl.waves.push_back({ 25, EnemyType::URUK, 0.7f, 1.3f, 30 });
+        lvl.waves.push_back({ 50, EnemyType::ORC, 0.4f, 1.4f, 20 });
+        lvl.waves.push_back({ 10,  EnemyType::TROLL, 3.0f, 1.1f, 60 });
+        lvl.waves.push_back({ 1,  EnemyType::NAZGUL, 5.0f, 1.5f, 500 });
 
         lvl.storyLines = {
             "CHAPTER 3: THE SIEGE BEGINS",
@@ -439,7 +417,39 @@ int main(void)
             "This is our final stand.",
             "YOU SHALL NOT PASS!"
         };
+        allLevels.push_back(lvl);
+    }
 
+    // --- TEST LEVEL ---
+    {
+        LevelData lvl; lvl.levelID = 4; lvl.name = "Level 4: TEST";
+        lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
+        lvl.bgColor = DARKGREEN;
+        lvl.startGold = 400;
+        int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
+        lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
+        int design[12][30] = {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        };
+        lvl.tileMap.resize(MAP_ROWS);
+        for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
+        lvl.paths = GeneratePathsFromMap(lvl.tileMap);
+        // lvl.waves.push_back({ 1, EnemyType::ORC, 1.5f, 1.0f, 0 });
+        // lvl.waves.push_back({ 1, EnemyType::NAZGUL, 2.0f, 1.0f, 0 });
+        lvl.waves.push_back({ 1, EnemyType::COMMANDER, 2.0f, 1.0f, 0 });
+
+        lvl.storyLines = { "TEST", "", "", "" };
         allLevels.push_back(lvl);
     }
 
@@ -462,15 +472,11 @@ int main(void)
     float flashTimer = 0.0f;
     float bossLabelTimer = 0.0f;
 
-    // Kale Canı
-    int castleHealth = 100; // [DENGELEME] Kalenin Başlangıç Canı
+    int castleHealth = 100;
     bool isBossActive = false;
-    const int CASTLE_MAX_HEALTH = 100; // [DENGELEME] Kalenin Maksimum Canı
+    const int CASTLE_MAX_HEALTH = 100;
 
-    // Ses Kontrol Değişkenleri
     float walkSoundTimer = 0.0f;
-
-    // Intro Değişkenleri
     float introAlpha = 0.0f;
     int introState = 0;
     float introTimer = 0.0f;
@@ -479,38 +485,60 @@ int main(void)
     while (!WindowShouldClose())
     {
         float dt = GetFrameTime();
-        Vector2 mouseScreenPos = GetMousePosition();
+
+        // [FIX] Ekran ölçekleme (Scale) hesabı
+        float scale = MIN((float)GetScreenWidth() / gameScreenWidth, (float)GetScreenHeight() / gameScreenHeight);
+
+        // [FIX] Sanal Mouse Hesabı
+        Vector2 mouseRaw = GetMousePosition();
+        Vector2 virtualMouse = { 0 };
+        float offsetX = (GetScreenWidth() - (gameScreenWidth * scale)) * 0.5f;
+        float offsetY = (GetScreenHeight() - (gameScreenHeight * scale)) * 0.5f;
+        virtualMouse.x = (mouseRaw.x - offsetX) / scale;
+        virtualMouse.y = (mouseRaw.y - offsetY) / scale;
+        virtualMouse = Vector2Clamp(virtualMouse, { 0, 0 }, { (float)gameScreenWidth, (float)gameScreenHeight });
+
+        Vector2 mouseScreenPos = virtualMouse;
         Vector2 mouseWorldPos = GetScreenToWorld2D(mouseScreenPos, camera);
+
+        // F11 Tam Ekran
+        if (IsKeyPressed(KEY_F11)) {
+            int monitor = GetCurrentMonitor();
+            if (IsWindowFullscreen()) {
+                ToggleFullscreen();
+                SetWindowSize(gameScreenWidth, gameScreenHeight);
+            }
+            else {
+                SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+                ToggleFullscreen();
+            }
+        }
 
         Audio::Update();
 
-        BeginDrawing();
+        // [FIX] Çizimi Sanal Ekrana Başlat
+        BeginTextureMode(target);
         ClearBackground(RAYWHITE);
 
-        // --- MÜZİK YÖNETİMİ ---
+        // --- MÜZİK ---
         switch (currentScreen)
         {
         case GameScreen::TITLE:
         case GameScreen::LEVEL_SELECT:
         case GameScreen::LEVEL_INTRO:
             Audio::PlayMusic("music_menu");
-
-            // [DENGELEME] Menü Müzik Sesi Seviyesi (0.0 ile 1.0 arası)
             Audio::SetMusicVolume(0.3f);
             break;
 
         case GameScreen::GAMEPLAY:
             if (isBossActive) {
                 Audio::PlayMusic("music_boss");
-                // [DENGELEME] Boss Müzik Sesi Seviyesi
                 Audio::SetMusicVolume(0.4f);
             }
             else {
                 if (currentLevel->levelID == 1) Audio::PlayMusic("music_level1");
                 else if (currentLevel->levelID == 2) Audio::PlayMusic("music_level2");
                 else if (currentLevel->levelID == 3) Audio::PlayMusic("music_level3");
-
-                // [DENGELEME] Normal Oyun Müzik Sesi Seviyesi
                 Audio::SetMusicVolume(0.2f);
             }
             break;
@@ -527,54 +555,42 @@ int main(void)
         // --- OYUN AKIŞI ---
         switch (currentScreen)
         {
-            // =======================
-            // TITLE SCREEN
-            // =======================
         case GameScreen::TITLE:
-            if (texMenuBg.id > 0) DrawTexturePro(texMenuBg, { 0,0,(float)texMenuBg.width, (float)texMenuBg.height }, { 0,0,(float)screenWidth, (float)screenHeight }, { 0,0 }, 0, WHITE);
-            else DrawRectangleGradientV(0, 0, screenWidth, screenHeight, DARKBLUE, BLACK);
-            DrawText("SIEGE OF GONDOR", screenWidth / 2 - MeasureText("SIEGE OF GONDOR", 60) / 2, 150, 60, GOLD);
+            if (texMenuBg.id > 0) DrawTexturePro(texMenuBg, { 0,0,(float)texMenuBg.width, (float)texMenuBg.height }, { 0,0,(float)gameScreenWidth, (float)gameScreenHeight }, { 0,0 }, 0, WHITE);
+            else DrawRectangleGradientV(0, 0, gameScreenWidth, gameScreenHeight, DARKBLUE, BLACK);
+            DrawText("SIEGE OF GONDOR", gameScreenWidth / 2 - MeasureText("SIEGE OF GONDOR", 60) / 2, 150, 60, GOLD);
 
-            if (GuiButton({ (float)screenWidth / 2 - 100, 400, 200, 50 }, "PLAY GAME", texBtnNormal, texBtnHover)) currentScreen = GameScreen::LEVEL_SELECT;
-            if (GuiButton({ (float)screenWidth / 2 - 100, 470, 200, 50 }, "EXIT", texBtnNormal, texBtnHover)) { CloseWindow(); return 0; }
+            // [FIX] mouseScreenPos parametresini ekledik
+            if (GuiButton({ (float)gameScreenWidth / 2 - 100, 400, 200, 50 }, "PLAY GAME", texBtnNormal, texBtnHover, mouseScreenPos)) currentScreen = GameScreen::LEVEL_SELECT;
+            if (GuiButton({ (float)gameScreenWidth / 2 - 100, 470, 200, 50 }, "EXIT", texBtnNormal, texBtnHover, mouseScreenPos)) { CloseWindow(); return 0; }
             break;
 
-            // =======================
-            // LEVEL SELECT
-            // =======================
         case GameScreen::LEVEL_SELECT:
-            if (texMenuBg.id > 0) DrawTexturePro(texMenuBg, { 0,0,(float)texMenuBg.width, (float)texMenuBg.height }, { 0,0,(float)screenWidth, (float)screenHeight }, { 0,0 }, 0, GRAY);
-            else DrawRectangle(0, 0, screenWidth, screenHeight, DARKGRAY);
-            DrawText("SELECT A BATTLEFIELD", screenWidth / 2 - MeasureText("SELECT A BATTLEFIELD", 40) / 2, 50, 40, WHITE);
+            if (texMenuBg.id > 0) DrawTexturePro(texMenuBg, { 0,0,(float)texMenuBg.width, (float)texMenuBg.height }, { 0,0,(float)gameScreenWidth, (float)gameScreenHeight }, { 0,0 }, 0, GRAY);
+            else DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, DARKGRAY);
+            DrawText("SELECT A BATTLEFIELD", gameScreenWidth / 2 - MeasureText("SELECT A BATTLEFIELD", 40) / 2, 50, 40, WHITE);
             {
                 int btnWidth = 300; int btnHeight = 60; int gap = 10; int startY = 120;
                 for (int i = 0; i < allLevels.size(); i++) {
-                    float x = (float)screenWidth / 2 - btnWidth / 2;
+                    float x = (float)gameScreenWidth / 2 - btnWidth / 2;
                     float y = (float)startY + i * (btnHeight + gap);
-                    if (GuiButton({ x, y, (float)btnWidth, (float)btnHeight }, allLevels[i].name, texBtnNormal, texBtnHover)) {
+                    // [FIX] mouseScreenPos parametresini ekledik
+                    if (GuiButton({ x, y, (float)btnWidth, (float)btnHeight }, allLevels[i].name, texBtnNormal, texBtnHover, mouseScreenPos)) {
                         currentLevel = &allLevels[i];
-
-                        // OYUNU SIFIRLA
                         gold = currentLevel->startGold;
-                        castleHealth = CASTLE_MAX_HEALTH; // Canı Fulle
+                        castleHealth = CASTLE_MAX_HEALTH;
                         enemies.clear(); towers.clear(); projectiles.clear(); riders.clear(); bloodSystem.particles.clear();
                         currentWaveIndex = 0; enemiesSpawnedInWave = 0; waveDelayTimer = 0.0f; urukBlood = 0;
                         camera.target = { 0, 0 };
                         isBossActive = false;
                         currentScreen = GameScreen::LEVEL_INTRO;
-
-                        // HİKAYE BAŞLAT
                         introState = 0; introAlpha = 0.0f; introTimer = 0.0f; introTextIndex = 0;
-                        currentScreen = GameScreen::LEVEL_INTRO;
                     }
                 }
             }
-            if (GuiButton({ 20, 20, 100, 40 }, "BACK", texBtnNormal, texBtnHover)) currentScreen = GameScreen::TITLE;
+            if (GuiButton({ 20, 20, 100, 40 }, "BACK", texBtnNormal, texBtnHover, mouseScreenPos)) currentScreen = GameScreen::TITLE;
             break;
 
-            // =======================
-            // LEVEL INTRO (HİKAYE)
-            // =======================
         case GameScreen::LEVEL_INTRO:
         {
             ClearBackground(BLACK);
@@ -600,27 +616,22 @@ int main(void)
             if (currentLevel && introTextIndex < currentLevel->storyLines.size()) {
                 const char* text = currentLevel->storyLines[introTextIndex].c_str();
                 int fontSize = 40; int textW = MeasureText(text, fontSize);
-                DrawText(text, (screenWidth - textW) / 2, (screenHeight - fontSize) / 2, fontSize, Fade(WHITE, introAlpha));
+                DrawText(text, (gameScreenWidth - textW) / 2, (gameScreenHeight - fontSize) / 2, fontSize, Fade(WHITE, introAlpha));
             }
-            DrawText("Press ENTER to Skip", screenWidth - 250, screenHeight - 40, 20, Fade(GRAY, 0.5f));
+            DrawText("Press ENTER to Skip", gameScreenWidth - 250, gameScreenHeight - 40, 20, Fade(GRAY, 0.5f));
         }
         break;
 
-        // =======================
-        // GAMEPLAY
-        // =======================
         case GameScreen::GAMEPLAY:
         {
-            // ... (Kamera ve Yetenek kodları) ...
-            if (currentLevel->mapWidth > screenWidth) {
+            if (currentLevel->mapWidth > gameScreenWidth) {
                 float scrollSpeed = 10.0f; float edgeSize = 50.0f;
-                if (mouseScreenPos.x >= screenWidth - edgeSize) camera.target.x += scrollSpeed;
+                if (mouseScreenPos.x >= gameScreenWidth - edgeSize) camera.target.x += scrollSpeed;
                 if (mouseScreenPos.x <= edgeSize) camera.target.x -= scrollSpeed;
                 if (camera.target.x < 0) camera.target.x = 0;
-                if (camera.target.x > currentLevel->mapWidth - screenWidth) camera.target.x = currentLevel->mapWidth - screenWidth;
+                if (camera.target.x > currentLevel->mapWidth - gameScreenWidth) camera.target.x = currentLevel->mapWidth - gameScreenWidth;
             }
 
-            // Yetenekler
             if (IsKeyPressed(KEY_Q)) {
                 if (urukBlood >= COST_GANDALF) {
                     urukBlood -= COST_GANDALF;
@@ -641,13 +652,12 @@ int main(void)
             if (IsKeyPressed(KEY_TWO))   selectedTower = TowerType::MELEE;
             if (IsKeyPressed(KEY_THREE)) selectedTower = TowerType::ICE;
 
-            // Kule Yerleştirme Kontrolleri
             int gridX = (int)(mouseWorldPos.x / TILE_SIZE);
             int gridY = (int)(mouseWorldPos.y / TILE_SIZE);
             Vector2 snapPos = { (float)gridX * TILE_SIZE + TILE_SIZE / 2, (float)gridY * TILE_SIZE + TILE_SIZE / 2 };
 
             bool isValidPlacement = true;
-            bool isHoveringUI = (mouseScreenPos.y > screenHeight - 60);
+            bool isHoveringUI = (mouseScreenPos.y > gameScreenHeight - 60);
 
             if (gridX < 0 || gridX >= currentLevel->cols || gridY < 0 || gridY >= MAP_ROWS) isValidPlacement = false;
             else if (currentLevel->tileMap[gridY][gridX] != 0) isValidPlacement = false;
@@ -670,7 +680,6 @@ int main(void)
                 if (!clickedExisting && isValidPlacement) {
                     Texture2D textureToUse = texTowerArcher;
                     Texture2D projectileToUse = texProjArrow;
-
                     if (selectedTower == TowerType::MELEE) { textureToUse = texTowerMelee; projectileToUse = texProjMelee; }
                     else if (selectedTower == TowerType::ICE) { textureToUse = texTowerIce; projectileToUse = texProjIce; }
 
@@ -680,7 +689,6 @@ int main(void)
                 }
             }
 
-            // Spawn Mantığı
             if (currentWaveIndex < currentLevel->waves.size()) {
                 EnemyWave& w = currentLevel->waves[currentWaveIndex];
                 if (enemiesSpawnedInWave < w.enemyCount) {
@@ -691,33 +699,24 @@ int main(void)
                             int pathIndex = GetRandomValue(0, (int)currentLevel->paths.size() - 1);
                             std::vector<Vector2>* chosenPath = currentLevel->paths[pathIndex];
 
-                            // Texture Seçimi
                             Texture2D currentEnemyTex = texOrc;
                             if (w.enemyType == EnemyType::URUK) currentEnemyTex = texUruk;
                             else if (w.enemyType == EnemyType::TROLL) currentEnemyTex = texTroll;
                             else if (w.enemyType == EnemyType::GROND) currentEnemyTex = texGrond;
                             else if (w.enemyType == EnemyType::NAZGUL) currentEnemyTex = texNazgul;
+                            else if (w.enemyType == EnemyType::COMMANDER) currentEnemyTex = texCommander;
 
-                            // --- DİNAMİK ZORLUK HESAPLAMASI (GÜNCELLENEN KISIM) ---
-                            // Her seviye numarası için düşmana +20 ekstra can eklenir.
-                            // Örn: Level 1 -> +20 Can, Level 4 -> +80 Can
+
                             int dynamicHealth = w.healthBonus + (currentLevel->levelID * 15);
+                            enemies.push_back(Enemy(w.enemyType, chosenPath, currentEnemyTex, w.speedMultiplier, dynamicHealth));
 
-                            // DÜŞMANI OLUŞTUR
-                            enemies.push_back(Enemy(w.enemyType, chosenPath,
-                                currentEnemyTex,
-                                w.speedMultiplier, dynamicHealth)); // w.healthBonus yerine dynamicHealth kullanıldı
-
-                            // BOSS KONTROLÜ
                             if (w.enemyType == EnemyType::NAZGUL) {
                                 isBossActive = true;
-                                bossLabelTimer = 4.0f; // Boss yazısı süresi
+                                bossLabelTimer = 4.0f;
                             }
 
-                            // Spawn Sesi
                             int rndSpawn = GetRandomValue(1, 3);
                             Audio::PlaySFX(TextFormat("spawn_%d", rndSpawn), 0.1f + GetRandomValue(-1, 1) / 10.0f);
-
                             enemiesSpawnedInWave++;
                         }
                     }
@@ -728,7 +727,6 @@ int main(void)
                 }
             }
             else {
-                // VICTORY KONTROLÜ
                 if (enemies.empty()) {
                     Audio::StopMusic();
                     Audio::PlayMusic("victory_jingle");
@@ -736,42 +734,21 @@ int main(void)
                 }
             }
 
-            // Yürüme Sesi
             if (!enemies.empty()) {
                 walkSoundTimer += dt;
-
-                // Her 0.6 saniyede bir ses kontrolü yap
                 if (walkSoundTimer > 0.6f) {
                     walkSoundTimer = 0.0f;
-
-                    // Önce sahada kimler var bir bakalım
-                    bool hasInfantry = false; // Ork veya Uruk var mı?
-                    bool hasHeavy = false; // Troll veya Grond var mı?
-                    bool hasNazgul = false; // Nazgul var mı?
-
+                    bool hasInfantry = false;
+                    bool hasHeavy = false;
+                    bool hasNazgul = false;
                     for (const auto& e : enemies) {
                         if (e.GetType() == EnemyType::ORC || e.GetType() == EnemyType::URUK) hasInfantry = true;
-                        if (e.GetType() == EnemyType::TROLL || e.GetType() == EnemyType::GROND) hasHeavy = true;
+                        if (e.GetType() == EnemyType::TROLL || e.GetType() == EnemyType::GROND || e.GetType() == EnemyType::COMMANDER) hasHeavy = true;
                         if (e.GetType() == EnemyType::NAZGUL) hasNazgul = true;
                     }
-
-                    // 1. Ork/Uruk varsa normal adım sesi çal
-                    if (hasInfantry) {
-                        // Pitch (1.0) normal ses, Volume (0.6) orta şiddet
-                        Audio::PlaySFX("orc_walk", 0.3f, 1.0f);
-                    }
-
-                    // 2. Troll/Grond varsa DAHA KALIN ve GÜR bir ses çal
-                    if (hasHeavy) {
-                        // Volume 1.0 (Çok sesli)
-                        // Audio::PlaySFX("orc_walk", 1.0f, 0.6f); // <-- Dosya yoksa bunu aç
-                        Audio::PlaySFX("heavy_walk", 0.2f, 0.8f); // Dosya varsa bunu kullan
-                    }
-
-                    // 3. 
-                    if (hasNazgul) {
-                        Audio::PlaySFX("heavy_walk", 0.7f, 0.1f);
-                    }
+                    if (hasInfantry) Audio::PlaySFX("orc_walk", 0.3f, 1.0f);
+                    if (hasHeavy) Audio::PlaySFX("heavy_walk", 0.2f, 0.8f);
+                    if (hasNazgul) Audio::PlaySFX("heavy_walk", 0.7f, 0.1f);
                 }
             }
 
@@ -779,20 +756,16 @@ int main(void)
             for (int i = 0; i < enemies.size(); i++) {
                 enemies[i].Update(dt);
                 if (!enemies[i].IsAlive()) {
-                    // [DENGELEME] Düşman öldüğünde kazanılan altın
                     gold += 15;
-
                     urukBlood += (int)(enemies[i].GetManaReward() * 0.5f);
                     if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
                     Audio::PlaySFX("orc_death", 0.1f, GetRandomValue(80, 120) / 100.0f);
                     Audio::PlaySFX("gold_gain", 0.1f, 1.0f + GetRandomValue(0, 2) / 10.0f);
                     enemies.erase(enemies.begin() + i); i--; continue;
                 }
-
                 if (enemies[i].ReachedEnd()) {
                     castleHealth -= enemies[i].GetDamage();
                     enemies.erase(enemies.begin() + i); i--;
-
                     if (castleHealth <= 0) {
                         castleHealth = 0;
                         Audio::StopMusic();
@@ -803,50 +776,23 @@ int main(void)
             }
             for (int i = 0; i < (int)riders.size(); i++) {
                 riders[i].Update(dt);
-
                 for (Enemy& e : enemies) {
                     if (e.IsAlive() && CheckCollisionCircles(riders[i].position, 30, e.GetPosition(), 20)) {
-
                         float damageRate = 0.0f;
-
-                        // 1. BOSS KONTROLÜ
-                        if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) {
-                            damageRate = 0.008f; // Bosslara %0.8 Hasar
-                        }
-                        else {
-                            damageRate = 0.02f;  // Normallere %2 Hasar
-                        } // <-- BURADAKİ KAPATMA PARANTEZİ EKSİK OLABİLİR
-
-                        // Hasarı Hesapla
+                        if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) damageRate = 0.008f;
+                        else damageRate = 0.02f;
                         int damage = (int)(e.GetHealth() * damageRate);
                         if (damage < 1) damage = 1;
-
                         e.TakeDamage(damage);
-
-                        // Efekt
-                        if (GetRandomValue(0, 4) == 0) {
-                            bloodSystem.Spawn(e.GetPosition());
-                        }
-
-                        // Ödül
+                        if (GetRandomValue(0, 4) == 0) bloodSystem.Spawn(e.GetPosition());
                         if (!e.IsAlive()) {
-                            if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) {
-                                gold += 50;
-                                urukBlood += 20;
-                            }
-                            else {
-                                gold += 3;
-                                urukBlood += (int)(e.GetManaReward() * 0.1f);
-                            }
+                            if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) { gold += 50; urukBlood += 20; }
+                            else { gold += 3; urukBlood += (int)(e.GetManaReward() * 0.1f); }
                             if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
                         }
                     }
                 }
-
-                if (!riders[i].active) {
-                    riders.erase(riders.begin() + i);
-                    i--;
-                }
+                if (!riders[i].active) { riders.erase(riders.begin() + i); i--; }
             }
             for (Tower& t : towers) t.Update(dt, enemies, projectiles);
             for (int i = 0; i < projectiles.size(); i++) {
@@ -854,17 +800,10 @@ int main(void)
                 if (projectiles[i].active && projectiles[i].type != ProjectileType::MELEE) {
                     for (Enemy& e : enemies) {
                         if (e.IsAlive() && CheckCollisionCircles(projectiles[i].position, 5, e.GetPosition(), e.GetRadius())) {
-
                             e.TakeDamage(projectiles[i].damage);
                             bloodSystem.Spawn(e.GetPosition());
-
-                            if (projectiles[i].type == ProjectileType::ICE) {
-                                Audio::PlaySFX("ice_hit", 0.3f, 1.0f);
-                            }
-                            else {
-                                Audio::PlaySFX("arrow_hit", 0.1f + GetRandomValue(0, 2) / 10.0f);
-                            }
-
+                            if (projectiles[i].type == ProjectileType::ICE) Audio::PlaySFX("ice_hit", 0.3f, 1.0f);
+                            else Audio::PlaySFX("arrow_hit", 0.1f + GetRandomValue(0, 2) / 10.0f);
                             if (projectiles[i].type == ProjectileType::ICE) e.ApplySlow(0.5f, 2.0f);
                             projectiles[i].active = false;
                             if (!e.IsAlive()) { gold += 15; urukBlood += e.GetManaReward(); if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD; }
@@ -877,14 +816,26 @@ int main(void)
 
             BeginMode2D(camera);
 
+            // --- ARKA PLAN ÇİZİMİ (DÜZELTİLMİŞ HALİ) ---
             if (currentLevel->background.id > 0) {
+                // Dokunun tekrar etmesini sağla
                 SetTextureWrap(currentLevel->background, TEXTURE_WRAP_REPEAT);
-                DrawTexturePro(currentLevel->background,
-                    { 0, 0, (float)currentLevel->mapWidth, (float)currentLevel->background.height },
-                    { 0, 0, (float)currentLevel->mapWidth, (float)screenHeight },
-                    { 0, 0 }, 0.0f, WHITE);
+
+                // 1. Kaynak (Source):
+                // Genişliği 'mapWidth' yapıyoruz ki texture o kadar mesafe boyunca kendini tekrar etsin.
+                Rectangle sourceRec = { 0, 0, (float)currentLevel->mapWidth, (float)currentLevel->background.height };
+
+                // 2. Hedef (Destination):
+                // Ekranda kaplayacağı alan. Burası da 'mapWidth' olmalı ki haritanın sonuna kadar gitsin.
+                // Yüksekliği 'gameScreenHeight' yapıyoruz ki ekranı dikeyde doldursun.
+                Rectangle destRec = { 0, 0, (float)currentLevel->mapWidth, (float)gameScreenHeight };
+
+                DrawTexturePro(currentLevel->background, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
             }
-            else DrawRectangle(0, 0, currentLevel->mapWidth, screenHeight, currentLevel->bgColor);
+            else {
+                // Resim yoksa düz renk bas
+                DrawRectangle(0, 0, currentLevel->mapWidth, gameScreenHeight, currentLevel->bgColor);
+            }
 
             for (int y = 0; y < MAP_ROWS; y++) {
                 for (int x = 0; x < currentLevel->cols; x++) {
@@ -895,20 +846,10 @@ int main(void)
                     }
                 }
             }
-
             if (texCity.id > 0) {
-                DrawTexturePro(texCity,
-                    { 0, 0, (float)texCity.width, (float)texCity.height },
-                    {
-                        currentLevel->castlePos.x,
-                        currentLevel->castlePos.y,
-                        (float)texCity.width * currentLevel->castleScale,
-                        (float)texCity.height * currentLevel->castleScale
-                    },
-                    { 0, 0 }, 0.0f, WHITE);
+                DrawTexturePro(texCity, { 0, 0, (float)texCity.width, (float)texCity.height }, { currentLevel->castlePos.x, currentLevel->castlePos.y, (float)texCity.width * currentLevel->castleScale, (float)texCity.height * currentLevel->castleScale }, { 0, 0 }, 0.0f, WHITE);
             }
 
-            // --- KALE CAN BARI ÇİZİMİ ---
             float healthPct = (float)castleHealth / CASTLE_MAX_HEALTH;
             float barX = currentLevel->castlePos.x + 20;
             float barY = currentLevel->castlePos.y - 20;
@@ -932,12 +873,10 @@ int main(void)
                 Texture2D previewTex = texTowerArcher;
                 if (selectedTower == TowerType::MELEE) previewTex = texTowerMelee;
                 else if (selectedTower == TowerType::ICE) previewTex = texTowerIce;
-
                 Color ghostColor = isValidPlacement ? Fade(GREEN, 0.5f) : Fade(RED, 0.5f);
                 float range = GetTowerRange(selectedTower);
                 DrawCircleV(snapPos, range, Fade(ghostColor, 0.2f));
                 DrawCircleLines((int)snapPos.x, (int)snapPos.y, range, ghostColor);
-
                 if (previewTex.id > 0) {
                     Rectangle src = { 0, 0, (float)previewTex.width, (float)previewTex.height };
                     Rectangle dest = { snapPos.x, snapPos.y, 64, 114 };
@@ -945,7 +884,6 @@ int main(void)
                     DrawTexturePro(previewTex, src, dest, origin, 0.0f, ghostColor);
                 }
             }
-
             bool hoverExisting = false;
             for (const Tower& t : towers) {
                 if (t.IsClicked(mouseWorldPos)) {
@@ -961,47 +899,38 @@ int main(void)
                 DrawCircleV(snapPos, range, c);
                 DrawCircleLines((int)snapPos.x, (int)snapPos.y, range, border);
             }
-
             EndMode2D();
 
-            // 1. BOSS YAZISI
             if (bossLabelTimer > 0.0f) {
                 bossLabelTimer -= dt;
-
                 float alpha = (sinf(GetTime() * 10.0f) + 1.0f) / 2.0f;
-
                 const char* text = "WITCH KING IS HERE";
                 int fontSize = 60;
                 int textW = MeasureText(text, fontSize);
-                int textX = (screenWidth - textW) / 2;
+                int textX = (gameScreenWidth - textW) / 2;
                 int textY = 200;
-
                 DrawText(text, textX + 4, textY + 4, fontSize, Fade(BLACK, 0.7f));
                 DrawText(text, textX, textY, fontSize, Fade(RED, 0.8f + (alpha * 0.2f)));
             }
-
-            // 2. GANDALF EFEKTİ
             if (flashTimer > 0.0f) {
                 flashTimer -= dt;
-                DrawRectangle(0, 0, screenWidth, screenHeight, Fade(WHITE, flashTimer * 0.2f));
+                DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, Fade(WHITE, flashTimer * 0.2f));
                 float cellSize = 64.0f;
                 int animFrame = (int)((2.0f - flashTimer) * 4.0f) % 7;
                 Rectangle source = { animFrame * cellSize, 2 * cellSize, cellSize, cellSize };
-                DrawTexturePro(texGandalf, source, { (float)screenWidth / 2 - 64, (float)screenHeight / 2 - 80, 128, 128 }, { 0,0 }, 0.0f, Fade(WHITE, flashTimer + 0.2f));
+                DrawTexturePro(texGandalf, source, { (float)gameScreenWidth / 2 - 64, (float)gameScreenHeight / 2 - 80, 128, 128 }, { 0,0 }, 0.0f, Fade(WHITE, flashTimer + 0.2f));
             }
 
-            DrawRectangle(0, screenHeight - 60, screenWidth, 60, Fade(BLACK, 0.9f));
-            DrawText(TextFormat("Gold: %d", gold), 20, screenHeight - 45, 20, YELLOW);
-            DrawText(TextFormat("Wave: %d / %d", currentWaveIndex + 1, currentLevel->waves.size()), 20, screenHeight - 25, 20, WHITE);
-
+            DrawRectangle(0, gameScreenHeight - 60, gameScreenWidth, 60, Fade(BLACK, 0.9f));
+            DrawText(TextFormat("Gold: %d", gold), 20, gameScreenHeight - 45, 20, YELLOW);
+            DrawText(TextFormat("Wave: %d / %d", currentWaveIndex + 1, currentLevel->waves.size()), 20, gameScreenHeight - 25, 20, WHITE);
             Color c1 = (selectedTower == TowerType::ARCHER) ? YELLOW : GRAY;
             Color c2 = (selectedTower == TowerType::MELEE) ? RED : GRAY;
             Color c3 = (selectedTower == TowerType::ICE) ? SKYBLUE : GRAY;
-            DrawText("[1] Archer", 400, screenHeight - 40, 20, c1);
-            DrawText("[2] Melee", 550, screenHeight - 40, 20, c2);
-            DrawText("[3] Ice", 700, screenHeight - 40, 20, c3);
-
-            int rightX = screenWidth - 450; int uiBarY = screenHeight - 35;
+            DrawText("[1] Archer", 400, gameScreenHeight - 40, 20, c1);
+            DrawText("[2] Melee", 550, gameScreenHeight - 40, 20, c2);
+            DrawText("[3] Ice", 700, gameScreenHeight - 40, 20, c3);
+            int rightX = gameScreenWidth - 450; int uiBarY = gameScreenHeight - 35;
             DrawRectangleLines(rightX, uiBarY, 120, 15, GRAY);
             float bloodPct = (float)urukBlood / MAX_BLOOD;
             DrawRectangle(rightX + 1, uiBarY + 1, (int)(118 * bloodPct), 13, MAROON);
@@ -1011,69 +940,56 @@ int main(void)
             DrawText("[Q] GANDALF", rightX + 130, uiBarY - 5, 20, cQ);
             DrawText("[W] ROHIRRIM", rightX + 280, uiBarY - 5, 20, cW);
 
-            if (GuiButton({ (float)screenWidth - 120, 10, 100, 30 }, "MENU", texBtnNormal, texBtnHover)) {
+            // [FIX] mouseScreenPos parametresini ekledik
+            if (GuiButton({ (float)gameScreenWidth - 120, 10, 100, 30 }, "MENU", texBtnNormal, texBtnHover, mouseScreenPos)) {
                 currentScreen = GameScreen::TITLE;
             }
         }
         break;
 
-        // =======================
-        // VICTORY SCREEN
-        // =======================
         case GameScreen::VICTORY:
-            if (texVictoryBg.id > 0) {
-                DrawTexturePro(texVictoryBg,
-                    { 0, 0, (float)texVictoryBg.width, (float)texVictoryBg.height },
-                    { 0, 0, (float)screenWidth, (float)screenHeight },
-                    { 0, 0 }, 0.0f, WHITE);
-            }
-            else {
-                DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
-            }
-
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.4f));
-
-            DrawText("VICTORY!", screenWidth / 2 - MeasureText("VICTORY!", 80) / 2, screenHeight / 2 - 100, 80, GOLD);
-            DrawText("Gondor is Safe... For now.", screenWidth / 2 - MeasureText("Gondor is Safe... For now.", 30) / 2, screenHeight / 2, 30, WHITE);
-
-            if (GuiButton({ (float)screenWidth / 2 - 100, (float)screenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover)) {
+            if (texVictoryBg.id > 0) DrawTexturePro(texVictoryBg, { 0, 0, (float)texVictoryBg.width, (float)texVictoryBg.height }, { 0, 0, (float)gameScreenWidth, (float)gameScreenHeight }, { 0, 0 }, 0.0f, WHITE);
+            else DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, BLACK);
+            DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, Fade(BLACK, 0.4f));
+            DrawText("VICTORY!", gameScreenWidth / 2 - MeasureText("VICTORY!", 80) / 2, gameScreenHeight / 2 - 100, 80, GOLD);
+            DrawText("Gondor is Safe... For now.", gameScreenWidth / 2 - MeasureText("Gondor is Safe... For now.", 30) / 2, gameScreenHeight / 2, 30, WHITE);
+            // [FIX] mouseScreenPos parametresini ekledik
+            if (GuiButton({ (float)gameScreenWidth / 2 - 100, (float)gameScreenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover, mouseScreenPos)) {
                 Audio::StopMusic();
                 currentScreen = GameScreen::TITLE;
             }
             break;
 
-            // =======================
-            // GAMEOVER SCREEN
-            // =======================
         case GameScreen::GAMEOVER:
-            if (texDefeatBg.id > 0) {
-                DrawTexturePro(texDefeatBg,
-                    { 0, 0, (float)texDefeatBg.width, (float)texDefeatBg.height },
-                    { 0, 0, (float)screenWidth, (float)screenHeight },
-                    { 0, 0 }, 0.0f, WHITE);
-            }
-            else {
-                DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
-            }
-
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.6f));
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(RED, 0.2f));
-
-            DrawText("DEFEAT", screenWidth / 2 - MeasureText("DEFEAT", 80) / 2, screenHeight / 2 - 100, 80, RED);
-            DrawText("The White City has Fallen.", screenWidth / 2 - MeasureText("The White City has Fallen.", 30) / 2, screenHeight / 2, 30, RAYWHITE);
-
-            if (GuiButton({ (float)screenWidth / 2 - 100, (float)screenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover)) {
+            if (texDefeatBg.id > 0) DrawTexturePro(texDefeatBg, { 0, 0, (float)texDefeatBg.width, (float)texDefeatBg.height }, { 0, 0, (float)gameScreenWidth, (float)gameScreenHeight }, { 0, 0 }, 0.0f, WHITE);
+            else DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, BLACK);
+            DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, Fade(BLACK, 0.6f));
+            DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, Fade(RED, 0.2f));
+            DrawText("DEFEAT", gameScreenWidth / 2 - MeasureText("DEFEAT", 80) / 2, gameScreenHeight / 2 - 100, 80, RED);
+            DrawText("The White City has Fallen.", gameScreenWidth / 2 - MeasureText("The White City has Fallen.", 30) / 2, gameScreenHeight / 2, 30, RAYWHITE);
+            // [FIX] mouseScreenPos parametresini ekledik
+            if (GuiButton({ (float)gameScreenWidth / 2 - 100, (float)gameScreenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover, mouseScreenPos)) {
                 Audio::StopMusic();
                 currentScreen = GameScreen::TITLE;
             }
             break;
         }
 
+        EndTextureMode(); // [FIX] Sanal ekrana çizim bitti
+
+        // --- GERÇEK EKRANA ÇİZİM ---
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        Rectangle sourceRec = { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
+        Rectangle destRec = { (GetScreenWidth() - (gameScreenWidth * scale)) * 0.5f, (GetScreenHeight() - (gameScreenHeight * scale)) * 0.5f, gameScreenWidth * scale, gameScreenHeight * scale };
+        DrawTexturePro(target.texture, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
+
         EndDrawing();
-    }
+    } // While döngüsü sonu
 
     // --- TEMİZLİK ---
-    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texGrond);
+    UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texGrond); UnloadTexture(texCommander);
     UnloadTexture(texTowerArcher); UnloadTexture(texTowerMelee); UnloadTexture(texTowerIce);
     UnloadTexture(texMenuBg); UnloadTexture(texBtnNormal); UnloadTexture(texBtnHover);
     UnloadTexture(texProjArrow); UnloadTexture(texProjIce); UnloadTexture(texProjMelee);
@@ -1081,6 +997,7 @@ int main(void)
     UnloadTexture(texGandalf);
     UnloadTexture(texVictoryBg);
     UnloadTexture(texDefeatBg);
+    UnloadRenderTexture(target);
     for (auto& lvl : allLevels) {
         UnloadTexture(lvl.background);
         for (auto* p : lvl.paths) delete p;
