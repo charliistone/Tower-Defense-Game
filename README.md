@@ -83,9 +83,9 @@ All external assets used in this project are sourced from the following provider
     * [Voicy.network](https://voicy.network)
 
 * **Visual Assets:**
-    * **Characters:** [OpenGameArt.org](https://opengameart.org), [Itch.io](https://itch.io), Microsoft Bing
-    * **Towers & Structures:** [Kenney.nl](https://kenney.nl), Microsoft Bing
+    * **Characters:** [OpenGameArt.org](https://opengameart.org), [Itch.io](https://itch.io), [Microsoft Bing](https://www.bing.com)
+    * **Towers & Structures:** [Kenney.nl](https://kenney.nl), [Microsoft Bing](https://www.bing.com)
     * **End Game Screens:** [OpenArt.ai](https://openart.ai)
 
-* **Fonts:**
+* **Fonts (Typography):**
     * [DaFont](https://www.dafont.com)
