@@ -10,12 +10,12 @@ enum class ProjectileType {
 
 class Projectile {
 public:
-    // YENİ: En sona 'float sc' (scale) parametresi ekledik. Varsayılan = 1.0f (Normal Boyut)
+   
     Projectile(Vector2 start, Vector2 target, int dmg, ProjectileType t, Texture2D tex, float sc = 1.0f)
         : position(start), damage(dmg), type(t), texture(tex),
-        active(true), currentFrame(0), animTimer(0.0f), scale(sc) // <-- Scale'i kaydet
+        active(true), currentFrame(0), animTimer(0.0f), scale(sc) 
     {
-        // MELEE İÇİN ÖZEL AYAR
+        
         if (type == ProjectileType::MELEE) {
             speed = 0.0f;
             velocity = { 0, 0 };
@@ -29,7 +29,7 @@ public:
             rotation = atan2(dir.y, dir.x) * RAD2DEG;
         }
 
-        // Animasyon Hesabı (6 Kare)
+       
         frameWidth = texture.width / 6;
         frameHeight = texture.height;
     }
@@ -59,15 +59,14 @@ public:
 
         Rectangle source = { (float)currentFrame * frameWidth, 0, (float)frameWidth, (float)frameHeight };
 
-        // --- BOYUT AYARI BURADA YAPILIYOR ---
-        // Orijinal genişliği 'scale' ile çarpıyoruz.
+        
         float destW = frameWidth * scale;
         float destH = frameHeight * scale;
 
-        // Hedef dikdörtgen (Destination Rectangle) artık yeni boyutlara sahip
+        
         Rectangle dest = { position.x, position.y, destW, destH };
 
-        // Dönme merkezini de yeni boyuta göre tam ortaya alıyoruz
+        
         Vector2 origin = { destW / 2, destH / 2 };
 
         DrawTexturePro(texture, source, dest, origin, rotation, WHITE);
@@ -86,5 +85,5 @@ private:
     int frameWidth, frameHeight, currentFrame;
     float animTimer;
 
-    float scale; // YENİ DEĞİŞKEN
+    float scale; 
 };
