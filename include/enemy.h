@@ -3,6 +3,7 @@
 #include "raymath.h"
 #include <vector>
 
+// An enum-type class that defines enemy variations within the game.
 enum class EnemyType { ORC, URUK, TROLL, GROND, COMMANDER, NAZGUL };
 
 class Enemy {
@@ -14,12 +15,16 @@ public:
     void Draw() const;
 
     void TakeDamage(int dmg);
+
+    // Status Effects: Managing mechanics that restrict the enemy's movement.
     void ApplyStun(float duration);
     void ApplySlow(float factor, float duration);
 
     bool IsAlive() const { return alive; }
     bool ReachedEnd() const { return currentPoint >= path->size() - 1; }
     Vector2 GetPosition() const { return position; }
+
+    // Radius used for collision and turret range control. Returns 'Hitbox' size customized according to enemy type.
     float GetRadius() const {
         if (type == EnemyType::GROND) return 60.0f;
         if (type == EnemyType::NAZGUL) return 40.0f; 
@@ -33,8 +38,8 @@ public:
 
 private:
     Vector2 position;
-    std::vector<Vector2>* path;
-    int currentPoint;
+    std::vector<Vector2>* path;    // Reference to the vector holding the path coordinates.
+    int currentPoint;    // The coordinates of the enemy's current advance.
     Texture2D texture;
     EnemyType type;
 
