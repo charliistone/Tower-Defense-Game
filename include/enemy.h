@@ -1,0 +1,59 @@
+﻿#pragma once
+#include "raylib.h"
+#include "raymath.h"
+#include <vector>
+
+enum class EnemyType { ORC, URUK, TROLL, GROND, NAZGUL }; // <-- NAZGUL EKLENDİ
+
+class Enemy {
+public:
+    // ZORLUK SİSTEMİ: speedMult (Hız Çarpanı) ve hpBonus (Ekstra Can) eklendi
+    Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float speedMult = 1.0f, int hpBonus = 0);
+
+    void Update(float dt);
+    void Draw() const;
+
+    void TakeDamage(int dmg);
+    void ApplyStun(float duration);
+    void ApplySlow(float factor, float duration);
+
+    bool IsAlive() const { return alive; }
+    bool ReachedEnd() const { return currentPoint >= path->size() - 1; }
+    Vector2 GetPosition() const { return position; }
+    float GetRadius() const {
+        if (type == EnemyType::GROND) return 60.0f;
+        if (type == EnemyType::NAZGUL) return 40.0f; // <-- Nazgul Hitbox
+        if (type == EnemyType::TROLL) return 30.0f;
+        return 15.0f;
+    }
+    int GetManaReward() const { return manaReward; }
+    int GetDamage() const { return damage; }
+    EnemyType GetType() const { return type; }
+
+private:
+    Vector2 position;
+    std::vector<Vector2>* path;
+    int currentPoint;
+    Texture2D texture;
+    EnemyType type;
+
+    bool alive;
+    int health;
+    int maxHealth;
+    float speed;
+    float distanceTraveled;
+
+    int manaReward;
+    float stunTimer;
+    float slowTimer;
+    float slowFactor;
+    bool frozen;
+    int damage;
+
+    // Animasyon Değişkenleri
+    int frameWidth;
+    int frameHeight;
+    int currentFrame;
+    float animTimer;
+    int facing;
+};
