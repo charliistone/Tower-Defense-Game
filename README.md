@@ -11,7 +11,7 @@ The gameplay focuses on a tactical defense loop where players must withstand **2
 ### Core Systems
 * **Tactical Placement:** Players must utilize the terrain to create choke points and maximize the area-of-effect for their defensive structures.
 * **Economic Progression:** A gold-based economy rewards players for eliminating enemies, allowing for the purchase of new towers or the upgrading of existing ones.
-* **Win/Loss Conditions:** The game concludes with a victory if all 20 waves are repelled. A "Game Over" state is triggered if the main tower's health is depleted.
+* **Win/Loss Conditions:** The game concludes with a victory if all 18 (5 + 5 + 8 for Level 1-2 and 3) waves are repelled. A "Game Over" state is triggered if the main tower's health is depleted.
 
 ### Defense Towers
 Players can deploy and upgrade three distinct tower classes using the numeric keys:
