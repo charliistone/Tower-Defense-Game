@@ -7,7 +7,6 @@
 #include <string>
 #include "../IntroScreen.h"
 
-// --- HELPER FUNCTIONS ---
 float GetTowerRange(TowerType type) {
     switch (type) {
     case TowerType::ARCHER: return 200.0f;
@@ -48,14 +47,12 @@ const int MAX_BLOOD = 100;
 const int COST_GANDALF = 40;
 const int COST_ROHIRRIM = 60;
 
-// --- ROHIRRIM STRUCT ---
 struct Rohirrim {
     Vector2 position;
     std::vector<Vector2>* path;
     int currentPoint;
     bool active;
 
-    // Animasyon Kareleri
     const std::vector<Texture2D>* frames;
 
     float animTimer;
@@ -77,7 +74,6 @@ struct Rohirrim {
         if (!active) return;
         float speed = 350.0f;
 
-        // 1. Animasyon
         animTimer += dt;
         if (animTimer >= 0.08f) {
             animTimer = 0.0f;
@@ -85,7 +81,6 @@ struct Rohirrim {
             if (currentFrameIndex >= frames->size()) currentFrameIndex = 0;
         }
 
-        // 2. Hareket
         if (currentPoint > 0) {
             Vector2 target = (*path)[currentPoint - 1];
             Vector2 dir = Vector2Normalize(Vector2Subtract(target, position));
@@ -131,7 +126,6 @@ int main(void)
     }
     intro.Unload();
 
-    // --- PATHS ---
     std::vector<Vector2>* pathTop = new std::vector<Vector2>();
     pathTop->push_back({ 0.0f, 200.0f });
     pathTop->push_back({ 400.0f, 200.0f });
@@ -148,7 +142,6 @@ int main(void)
     allPaths.push_back(pathTop);
     allPaths.push_back(pathBottom);
 
-    // --- ASSETS ---
     Texture2D texOrc = LoadTexture("assets/sprites/enemies/orc.png");
     Texture2D texUruk = LoadTexture("assets/sprites/enemies/uruk.png");
     Texture2D texTroll = LoadTexture("assets/sprites/enemies/troll.png");
@@ -160,14 +153,10 @@ int main(void)
     Sound sndGandalf = LoadSound("assets/audio/gandalfYouShallNot.mp3");
     Sound sndOrcMarch = LoadSound("assets/audio/393019__josecruz98__marcha_se_acerca.wav");
 
-
-
-    // --- YENÝ KULELERÝ YÜKLE ---
     Texture2D texTowerArcher = LoadTexture("assets/sprites/towers/tower_archer.png");
     Texture2D texTowerMelee = LoadTexture("assets/sprites/towers/tower_melee.png");
     Texture2D texTowerIce = LoadTexture("assets/sprites/towers/tower_ice.png");
 
-    // --- ROHIRRIM FRAMES ---
     std::vector<Texture2D> rohirrimFrames;
     rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop1.png"));
     rohirrimFrames.push_back(LoadTexture("assets/sprites/Knight_gallop2.png"));
@@ -197,7 +186,6 @@ int main(void)
         float dt = GetFrameTime();
         Vector2 mousePos = GetMousePosition();
 
-        // --- SKILL INPUTS ---
         if (IsKeyPressed(KEY_Q)) {
             if (urukBlood >= COST_GANDALF) {
                 urukBlood -= COST_GANDALF;
@@ -217,7 +205,6 @@ int main(void)
             }
         }
 
-        // --- GAME LOGIC ---
         if (IsKeyPressed(KEY_ONE))   selectedTower = TowerType::ARCHER;
         if (IsKeyPressed(KEY_TWO))   selectedTower = TowerType::MELEE;
         if (IsKeyPressed(KEY_THREE)) selectedTower = TowerType::ICE;
@@ -252,7 +239,7 @@ int main(void)
                 }
             }
             if (!clickedExisting && isValidPlacement) {
-                // --- KULE TÝPÝNE GÖRE RESÝM SEÇ ---
+      
                 Texture2D textureToUse = texTowerArcher;
                 if (selectedTower == TowerType::MELEE) textureToUse = texTowerMelee;
                 else if (selectedTower == TowerType::ICE) textureToUse = texTowerIce;
@@ -262,7 +249,6 @@ int main(void)
             }
         }
 
-        // SPAWNING
         if (enemiesSpawned < enemiesPerWave) {
             spawnTimer += dt;
             float delay = (waveNumber > 5) ? 0.6f : 1.2f;
@@ -285,7 +271,6 @@ int main(void)
             }
         }
 
-        // UPDATES
         for (int i = 0; i < enemies.size(); i++) {
             enemies[i].Update(dt);
             if (!enemies[i].IsAlive()) {
@@ -350,7 +335,6 @@ int main(void)
             if (!projectiles[i].active) { projectiles.erase(projectiles.begin() + i); i--; }
         }
 
-        // --- DRAWING ---
         BeginDrawing();
 
         Camera2D cam = { 0 };
@@ -385,7 +369,6 @@ int main(void)
         for (auto& r : riders) r.Draw();
         for (const auto& p : projectiles) p.Draw();
 
-        // --- GANDALF ANIMASYON ---
         if (flashTimer > 0.0f) {
             flashTimer -= dt;
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(WHITE, flashTimer * 0.4f));
@@ -449,7 +432,7 @@ int main(void)
 
     UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll);
 
-    // --- YENÝ TEXTURELARI BOÞALT ---
+    
     UnloadTexture(texTowerArcher);
     UnloadTexture(texTowerMelee);
     UnloadTexture(texTowerIce);
