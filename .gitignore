@@ -1,0 +1,19 @@
+﻿# Visual Studio klasörleri
+.vs/
+out/
+x64/
+Debug/
+Release/
+
+# Derleme dosyaları (Gereksizler)
+*.exe
+*.pdb
+*.idb
+*.ilk
+*.obj
+*.log
+*.tlog
+
+# Kullanıcıya özel ayarlar
+*.user
+*.suo

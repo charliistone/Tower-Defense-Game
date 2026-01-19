@@ -1,23 +1,33 @@
-﻿  main.cpp
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\Projectile.h(29,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+﻿  Audio.cpp
+  enemy.cpp
+  main.cpp
+C:\Users\hp\source\repos\Tower-Defense-Game\src\Projectile.h(29,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'src/main.cpp')
   
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(87,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(88,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(632,122): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(858,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(858,39): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(858,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(858,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(862,57): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(862,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(862,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(862,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(863,50): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(863,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(863,38): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(863,32): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(864,94): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(864,83): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\src\main.cpp(906,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  SiegeOfGondor.vcxproj -> C:\Users\ahmet\OneDrive\Masaüstü\GameProgramming\Tower-Defense-Game\x64\Debug\SiegeOfGondor.exe
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(87,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(88,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(599,122): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(727,61): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(822,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(822,39): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(822,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(822,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(826,57): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(826,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(826,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(826,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(827,50): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(827,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(827,38): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(827,32): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(828,94): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(828,83): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hp\source\repos\Tower-Defense-Game\src\main.cpp(870,47): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  tower.cpp
+C:\Users\hp\source\repos\Tower-Defense-Game\src\Projectile.h(29,44): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'src/tower.cpp')
+  
+C:\Users\hp\source\repos\Tower-Defense-Game\src\tower.cpp(18,34): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  SiegeOfGondor.vcxproj -> C:\Users\hp\source\repos\Tower-Defense-Game\x64\Debug\SiegeOfGondor.exe
