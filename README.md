@@ -1,106 +1,93 @@
 # Siege of Gondor
 
 ## Project Overview
-This project is a complete, playable Tower Defense game developed for the SENG479 Game Programming course. It is built from the ground up using C/C++ and the Raylib library, focusing on core game programming concepts including game loops, rendering, input handling, and game state management.
+**Siege of Gondor** is a strategy-based Tower Defense game developed for the **SENG479 Game Programming** course. Built natively using **C/C++** and the **Raylib** library, the project demonstrates core game engineering concepts including custom game loops, rendering pipelines, input handling, and state management.
 
-## Game Concept and Mechanics
-The game emphasizes tactical positioning and resource management to defend a base against progressively difficult enemy waves.
+Inspired by the lore of *The Lord of the Rings*, the game places the player in command of Gondor's defenses. The objective is to protect the main tower from the relentless assault of Sauron's forces through tactical resource management and strategic positioning.
 
-* **Tactical Placement:** Players must position towers in strategic locations to maximize area-of-effect and create efficient choke points.
-* **Dynamic Wave Scaling:** A sophisticated wave system increases enemy density, health, and movement speed as the game progresses.
-* **Economic Progression:** Players manage a gold-based economy, earning currency from defeated enemies to invest in multi-tier tower upgrades.
-* **Win/Loss Conditions:** The game concludes if the base's health reaches zero or if the player successfully survives all scheduled waves.
+## Game Mechanics & Design
+The gameplay focuses on a tactical defense loop where players must withstand **20 progressively difficult waves** of enemies.
+
+### Core Systems
+* **Tactical Placement:** Players must utilize the terrain to create choke points and maximize the area-of-effect for their defensive structures.
+* **Economic Progression:** A gold-based economy rewards players for eliminating enemies, allowing for the purchase of new towers or the upgrading of existing ones.
+* **Win/Loss Conditions:** The game concludes with a victory if all 20 waves are repelled. A "Game Over" state is triggered if the main tower's health is depleted.
+
+### Defense Towers
+Players can deploy and upgrade three distinct tower classes using the numeric keys:
+
+| Key | Type | Characteristics |
+| :--- | :--- | :--- |
+| **1** | **Archer Tower** | High attack speed with moderate damage output. Ideal for single-target DPS. |
+| **2** | **Melee Tower** | Heavy damage at close range. Best utilized at choke points. |
+| **3** | **Ice Tower** | Applies a movement speed debuff (slow) to enemies while dealing damage. |
+
+### Enemy Ranks
+The enemy waves consist of distinct unit types, ranging from fodder to boss-tier threats:
+
+* **Orc:** High movement speed, low health. Serves as the primary swarm unit.
+* **Uruk:** Balanced attributes in terms of speed and durability.
+* **Commander:** Elite infantry with superior health and damage resistance compared to standard units.
+* **Troll:** Slow movement speed with a massive health pool (Tank class). Requires sustained damage to defeat.
+* **Witch King:** The ultimate boss unit. Features extreme durability and serves as the primary threat in final waves.
+
+### Special Abilities
+Players have access to high-impact abilities for emergency crowd control:
+* **Gandalf (Q):** Temporarily freezes all active enemies in their current position.
+* **Rohirrim (W):** Initiates a cavalry charge that clears enemies along the path.
 
 ## Technical Implementation
-* **Framework:** Developed using Raylib with C/C++.
-* **Engine Performance:** The codebase is optimized to maintain a minimum of 60 frames per second (FPS) during normal gameplay.
-* **Modular Architecture:** The project is organized across multiple source files to ensure clean logic and maintainability.
-* **Functions and Logic:** All functions utilize descriptive naming conventions, and complex logic is supported by explanatory comments.
-* **Collision Logic:** Implements custom collision detection algorithms for projectile-to-enemy interactions and pathfinding constraints.
+This project eschews commercial game engines in favor of a code-first approach to demonstrate low-level game programming skills.
 
-## Build and Execution Instructions
-This project is submitted as a Visual Studio Solution.
+* **Framework:** Developed in C/C++ utilizing the Raylib library for window management and graphics.
+* **Optimization:** The game loop is optimized to maintain a stable **60 FPS** performance target.
+* **Architecture:** The codebase features a modular architecture with separated logic for collision detection, entity management, and UI rendering to ensure maintainability.
+* **Collision Logic:** Implements custom algorithms for projectile-to-enemy interaction and pathfinding constraints.
 
-### Setup
-1. Open the `.sln` file in Visual Studio.
-2. Verify that the Raylib include and library paths are correctly mapped for the laboratory environment.
+## Build and Execution
+The project is configured as a Visual Studio Solution.
 
-### Compilation
-1. Set the solution configuration to **Release** for optimal performance.
-2. Build the solution (Ctrl+Shift+B).
+### Setup & Compilation
+1. Open the solution file (`.sln`) in **Visual Studio**.
+2. Ensure Raylib include/library paths are correctly linked for the build environment.
+3. Set the configuration to **Release**.
+4. Build the solution (`Ctrl+Shift+B`).
+5. The executable will be generated in the `build` or `bin` directory.
 
-### Binary
-A compiled executable is included in the `build` or `bin` folder.
-
-## Controls
-* **Mouse Left-Click:** Build towers and interact with the User Interface.
-* **Mouse Right-Click:** Cancel current placement or interact with existing towers.
+### Controls
+* **Mouse Left-Click:** Build towers / Interact with UI.
+* **Mouse Right-Click:** Cancel placement / Select existing tower for upgrades.
 * **Spacebar:** Manually trigger the next wave.
-* **P / Esc:** Pause the gameplay and access the main menu.
+* **1 / 2 / 3:** Select Tower Type (Archer / Melee / Ice).
+* **Q:** Activate Ability: Gandalf.
+* **W:** Activate Ability: Rohirrim.
+* **P / Esc:** Pause Game / Main Menu.
 
-## Credits and External Assets
-All external assets are royalty-free and sourced from the following providers:
+## Development Team
+**University:** Ankara Bilim University
+**Course:** SENG479 Game Programming
 
-* **Graphics:**
-    * [CraftPix](https://craftpix.net)
-    * [Kenney](https://kenney.nl)
-    * [Sorthen (Itch.io)](https://sorthen.itch.io)
-* **Sound Effects:**
-    * [Freesound](https://freesound.org)
-    * [OpenGameArt](https://opengameart.org)
+| Name Surname | GitHub Profile | Contact |
+| :--- | :--- | :--- |
+| Ahmet Can Cengiz | [charliistone](https://github.com/charliistone) | s220201023@ankarabilim.edu.tr |
+| Ahmet Said Kuruoğlu | [Profile](https://github.com/kullaniciadi) | s220204008@ankarabilim.edu.tr |
+| Anday Turgut | [andayk](https://github.com/andayk) | s220204050@ankarabilim.edu.tr |
+| Bartu Turgut | [bartu33](https://github.com/bartu33) | s220201032@ankarabilim.edu.tr |
+| Salih Aydos | [LordChancelor](https://github.com/LordChancelor) | s220204002@ankarabilim.edu.tr |
+| Mustafa Kayalıca | [Profile](https://github.com/kullaniciadi) | s220201014@ankarabilim.edu.tr |
+
+## Credits & Assets
+All external assets used in this project are sourced from the following providers:
+
+* **Audio & Sound Effects:**
+    * [Freesound.org](https://freesound.org)
+    * [MyInstants.com](https://www.myinstants.com)
+    * [Voicy.network](https://voicy.network)
+
+* **Visual Assets:**
+    * **Characters:** [OpenGameArt.org](https://opengameart.org), [Itch.io](https://itch.io), Microsoft Bing
+    * **Towers & Structures:** [Kenney.nl](https://kenney.nl), Microsoft Bing
+    * **End Game Screens:** [OpenArt.ai](https://openart.ai)
+
 * **Fonts:**
     * [DaFont](https://www.dafont.com)
- 
-# 🏰 Siege of Gondor
-
-A strategy-based **Tower Defense Game** developed in **C**, inspired by the legendary world of *The Lord of the Rings*.
-
-### 📜 The Story
-As fans of LOTR series, we designed a story that stays true to the epic defense of Gondor. As the Lord of Gondor, you must protect the main tower from the relentless assault of Sauron's forces.
-
----
-
-### 🎮 Gameplay & Objective
-* **Goal:** Defend the main tower against **20 waves** of enemies.
-* **Victory:** Survive all 20 waves.
-* **Defeat:** If the main tower falls before the 20th wave, it's Game Over.
-* **Economy:** Earn coins by slaying enemies to build or upgrade your defenses.
-
-### 🏹 Defense Towers
-You can build and upgrade three types of towers using the numeric keys:
-
-| Key | Tower Type | Description |
-| :---: | :--- | :--- |
-| `1` | **ARCHER** | High attack speed, moderate damage. |
-| `2` | **MELEE** | Heavy damage at close range. |
-| `3` | **ICE** | Deals damage and **slows down** enemies. |
-
-> [!TIP]
-> Click on an existing tower to **upgrade** it if you have enough coins!
-
-### 👹 The Enemy Horde
-The forces of darkness come in three ranks, each with unique health and speed stats:
-* **Orc:** Fast but weak.
-* **Uruk:** Balanced strength and speed.
-* **Troll:** Slow moving but massive health pools.
-
-### ✨ Special Abilities
-Inspired by iconic movie scenes, you have two legendary powers at your disposal:
-
-* **Gandalf (Key: `Q`)**: *"You Shall Not Pass!"* – Instantly freezes all enemies in their current position.
-* **Rohirrim (Key: `W`)**: Call for the cavalry! – A devastating charge that wipes out enemies on the path, just like the films.
-
----
-
-## Project Team & Contact Info
-
-This project was developed by the following team members. Click on numbers or email addresses to contact.
-
-| Name Surname | GitHub | Email |
-| :--- | :---: | :--- |
-| Ahmet Can Cengiz | [🔗 Profil](https://github.com/charliistone) | [📧 s220201023@ankarabilim.edu.tr](mailto:s220201023@ankarabilim.edu.tr) |
-| Ahmet Said Kuruoğlu | [🔗 Profil](https://github.com/kullaniciadi) | [📧 s220204008@ankarabilim.edu.tr](mailto:s220204008@ankarabilim.edu.tr) |
-| Anday Turgut| [🔗 Profil](https://github.com/andayk) | [📧 s220204050@ankarabilim.edu.tr](mailto:s220204050@ankarabilim.edu.tr) |
-| Bartu Turgut | [🔗 Profil](https://github.com/bartu33) | [📧 s220201032@ankarabilim.edu.tr](mailto:s220201032@ankarabilim.edu.tr) |
-| Salih Aydos | [🔗 Profil](https://github.com/LordChancelor) | [📧 s220204002@ankarabilim.edu.tr](mailto:s220204002@ankarabilim.edu.tr) |
-| Mustafa Kayalıca | [🔗 Profil](https://github.com/kullaniciadi) | [📧 s220201014@ankarabilim.edu.tr](mailto:s220201014@ankarabilim.edu.tr) |
