@@ -8,7 +8,7 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex)
 {
     if (path && !path->empty()) position = (*path)[0];
 
-    // Stats
+   
     if (type == EnemyType::ORC) {
         maxHealth = 10; speed = 100.0f; manaReward = 2;
     }
@@ -20,12 +20,11 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex)
     }
     health = maxHealth;
 
-    // --- SPRITE HESABI ---
-    // Spreadsheet 3 sütun (hareket) ve 4 satýr (yön) varsayýlýyor.
+   
     frameWidth = texture.width / 3;
     frameHeight = texture.height / 4;
 
-    // Eðer görsel kare ise (Spreadsheet deðilse) düzelt
+   
     if (texture.width == texture.height) {
         frameWidth = texture.width;
         frameHeight = texture.height;
@@ -52,24 +51,24 @@ void Enemy::Update(float dt) {
         Vector2 target = (*path)[currentPoint + 1];
         Vector2 direction = Vector2Normalize(Vector2Subtract(target, position));
 
-        // --- YÖN HESAPLAMA (MOONWALK FIX) ---
+        
         if (fabs(direction.x) > fabs(direction.y)) {
-            // Yatay Hareket
-            if (direction.x > 0) facing = 2; // Sað (Genelde Row 2)
-            else facing = 1;                 // Sol  (Genelde Row 1)
+            
+            if (direction.x > 0) facing = 2; 
+            else facing = 1;                 
         }
         else {
-            // Dikey Hareket
-            if (direction.y > 0) facing = 0; // Aþaðý (Genelde Row 0)
-            else facing = 3;                 // Yukarý (Genelde Row 3)
+           
+            if (direction.y > 0) facing = 0; 
+            else facing = 3;                 
         }
 
-        // --- ADIM ANIMASYONU ---
+       
         animTimer += dt;
-        if (animTimer >= 0.2f) { // Adým hýzý
+        if (animTimer >= 0.2f) { 
             animTimer = 0.0f;
             currentFrame++;
-            if (currentFrame > 2) currentFrame = 0; // 0-1-2 döngüsü
+            if (currentFrame > 2) currentFrame = 0;
         }
 
         position = Vector2Add(position, Vector2Scale(direction, currentSpeed * dt));
@@ -84,14 +83,13 @@ void Enemy::Draw() const {
     float drawSize = 48.0f;
     if (type == EnemyType::TROLL) drawSize = 64.0f;
 
-    // --- DOÐRU KAREYÝ KESME (CROP) ---
-    // Eðer görsel spreadsheet deðilse (örn: kare ise), kaynak tüm resimdir.
+   
     Rectangle source;
     if (texture.width == texture.height) {
         source = { 0, 0, (float)texture.width, (float)texture.height };
     }
     else {
-        // Spreadsheet ise doðru parçayý al
+       
         source = {
             (float)currentFrame * frameWidth,
             (float)facing * frameHeight,
@@ -109,7 +107,7 @@ void Enemy::Draw() const {
 
     DrawTexturePro(texture, source, dest, origin, 0.0f, tint);
 
-    // Can Barý
+    
     float pct = (float)health / (float)maxHealth;
     int barWidth = (int)drawSize;
     DrawRectangle((int)position.x - barWidth / 2, (int)position.y - (int)(drawSize / 2) - 8, barWidth, 5, RED);
