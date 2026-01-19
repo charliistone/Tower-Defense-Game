@@ -12,7 +12,7 @@ Tower::Tower(Vector2 pos, Texture2D tex, Texture2D projTex, TowerType type)
         range = 250.0f; damage = 5; fireRate = 1.0f; cost = 100;
     }
     else if (type == TowerType::MELEE) {
-        range = 100.0f; damage = 15; fireRate = 1.5f; cost = 75;
+        range = 100.0f; damage = 15; fireRate = 1.5f; cost = 120;
     }
     else if (type == TowerType::ICE) {
         range = 180.0f; damage = 2; fireRate = 2.0f; cost = 150;

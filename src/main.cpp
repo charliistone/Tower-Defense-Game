@@ -153,7 +153,7 @@ float GetTowerRange(TowerType type) {
 int GetTowerCost(TowerType type) {
     if (type == TowerType::ARCHER) return 100; // Okçu Fiyatı
     if (type == TowerType::ICE) return 150;    // Buz Kulesi Fiyatı
-    return 75; // Melee (Şövalye) Fiyatı
+    return 100; // Melee (Şövalye) Fiyatı
 }
 
 struct BloodParticle { Vector2 position; int currentFrame; float animTimer; bool active; };
@@ -328,11 +328,11 @@ int main(void)
         for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
         lvl.paths = GeneratePathsFromMap(lvl.tileMap);
 
-        // [DENGELEME] WAVE AYARLARI
-        // Format: { Adet, Tip, Doğma Aralığı (sn), Hız Çarpanı, Ekstra Can }
         lvl.waves.push_back({ 5, EnemyType::ORC, 1.5f, 1.0f, 0 });
-        lvl.waves.push_back({ 8, EnemyType::ORC, 1.2f, 1.0f, 0 });
-        lvl.waves.push_back({ 3, EnemyType::URUK, 2.0f, 1.0f, 0 });
+        lvl.waves.push_back({ 12, EnemyType::ORC, 1.0f, 1.1f, 0 });
+        lvl.waves.push_back({ 5, EnemyType::URUK, 2.0f, 0.9f, 10 });
+        lvl.waves.push_back({ 15, EnemyType::ORC, 0.8f, 1.2f, 5 });
+        lvl.waves.push_back({ 8, EnemyType::URUK, 1.5f, 1.0f, 20 });
 
         lvl.storyLines = {
             "CHAPTER 1: THE OUTSKIRTS",
@@ -375,9 +375,11 @@ int main(void)
 
         // [DENGELEME] WAVE AYARLARI
         // { Adet, Tip, Doğma Aralığı (sn), Hız Çarpanı, Ekstra Can }
-        lvl.waves.push_back({ 10, EnemyType::ORC, 1.0f, 1.1f, 5 });
-        lvl.waves.push_back({ 5, EnemyType::URUK, 1.5f, 1.0f, 10 });
-        lvl.waves.push_back({ 1, EnemyType::TROLL, 5.0f, 1.0f, 0 });
+        lvl.waves.push_back({ 10, EnemyType::ORC, 1.0f, 1.1f, 5 });    // Dalga 1
+        lvl.waves.push_back({ 15, EnemyType::ORC, 0.8f, 1.2f, 10 });   // Dalga 2
+        lvl.waves.push_back({ 5, EnemyType::URUK, 1.5f, 1.0f, 10 });   // Dalga 3
+        lvl.waves.push_back({ 8, EnemyType::URUK, 1.2f, 1.1f, 15 });   // Dalga 4
+        lvl.waves.push_back({ 1, EnemyType::TROLL, 5.0f, 1.0f, 20 });  // Dalga 5 (Mini Boss)
 
         lvl.storyLines = {
             "CHAPTER 2: THE LONG ROAD",
@@ -392,22 +394,22 @@ int main(void)
 
     // --- LEVEL 3: ZOR ---
     {
-        LevelData lvl; lvl.levelID = 3; lvl.name = "Level 3: ZOR";
+        LevelData lvl; lvl.levelID = 3; lvl.name = "Level 3: The Siege";
         lvl.background = LoadTexture("assets/sprites/environment/lvl3_bg.png");
         lvl.bgColor = DARKGREEN;
 
         // [DENGELEME] Başlangıç Parası
-        lvl.startGold = 400;
+        lvl.startGold = 700;
 
         int width = 50; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
         lvl.castlePos = { 2700.0f, 90.0f }; lvl.castleScale = 0.5f;
         int design[12][50] = {
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {2,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0},
             {2,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
             {0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -421,61 +423,21 @@ int main(void)
 
         // [DENGELEME] WAVE AYARLARI
         // { Adet, Tip, Doğma Aralığı (sn), Hız Çarpanı, Ekstra Can }
-        lvl.waves.push_back({ 70, EnemyType::ORC, 0.5f, 1.5f, 0 });
-        lvl.waves.push_back({ 70, EnemyType::ORC, 0.5f, 1.5f, 0 });
-        lvl.waves.push_back({ 70, EnemyType::URUK, 0.5f, 1.5f, 0 });
+        lvl.waves.push_back({ 20, EnemyType::ORC, 0.8f, 1.0f, 10 });  // Wave 1: The Vanguard
+        lvl.waves.push_back({ 15, EnemyType::URUK, 1.0f, 1.1f, 20 }); // Wave 2: Heavy Infantry
+        lvl.waves.push_back({ 30, EnemyType::ORC, 0.5f, 1.1f, 15 });  // Wave 3: The Swarm
+        lvl.waves.push_back({ 6,  EnemyType::TROLL, 4.0f, 1.0f, 50 });// Wave 4: Wall Breakers
+        lvl.waves.push_back({ 25, EnemyType::URUK, 0.7f, 1.3f, 30 }); // Wave 5: Elite Guard
+        lvl.waves.push_back({ 50, EnemyType::ORC, 0.4f, 1.4f, 20 });  // Wave 6: Endless Night
+        lvl.waves.push_back({ 10,  EnemyType::TROLL, 3.0f, 1.1f, 60 });// Wave 7: Final Assault
+        lvl.waves.push_back({ 1,  EnemyType::NAZGUL, 5.0f, 1.5f, 500 }); // Wave 8: THE WITCH KING
 
         lvl.storyLines = {
             "CHAPTER 3: THE SIEGE BEGINS",
-            "They have breached the outer walls.",
-            "The Witch King leads the assault.",
+            "The sky turns red as the Great Eye turns toward us.",
+            "The Witch King comes to claim Gondor.",
             "This is our final stand.",
             "YOU SHALL NOT PASS!"
-        };
-
-        allLevels.push_back(lvl);
-    }
-
-    // --- TEST LEVEL ---
-    {
-        LevelData lvl; lvl.levelID = 1; lvl.name = "Level 4: TEST";
-        lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
-        lvl.bgColor = DARKGREEN;
-
-        // [DENGELEME] Başlangıç Parası
-        lvl.startGold = 400;
-
-        int width = 30; lvl.cols = width; lvl.mapWidth = width * TILE_SIZE;
-        lvl.castlePos = { 1550.0f, 120.0f }; lvl.castleScale = 0.5f;
-        int design[12][30] = {
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-        };
-        lvl.tileMap.resize(MAP_ROWS);
-        for (int y = 0; y < MAP_ROWS; y++) { lvl.tileMap[y].resize(width); for (int x = 0; x < width; x++) lvl.tileMap[y][x] = design[y][x]; }
-        lvl.paths = GeneratePathsFromMap(lvl.tileMap);
-        // lvl.waves.push_back({ 2, EnemyType::GROND, 5.0f, 1.0f, 0 });
-        // lvl.waves.push_back({ 1, EnemyType::ORC, 1.5f, 1.0f, 0 });
-        // lvl.waves.push_back({ 8, EnemyType::ORC, 1.2f, 1.0f, 0 });
-        // lvl.waves.push_back({ 3, EnemyType::URUK, 2.0f, 1.0f, 0 });
-         lvl.waves.push_back({ 1, EnemyType::NAZGUL, 2.0f, 1.0f, 0 });
-
-        // HİKAYE
-        lvl.storyLines = {
-            "TEST",
-            "",
-            "",
-            ""
         };
 
         allLevels.push_back(lvl);
@@ -640,7 +602,7 @@ int main(void)
                 int fontSize = 40; int textW = MeasureText(text, fontSize);
                 DrawText(text, (screenWidth - textW) / 2, (screenHeight - fontSize) / 2, fontSize, Fade(WHITE, introAlpha));
             }
-            DrawText("Press ENTER to Skip", screenWidth - 200, screenHeight - 40, 20, Fade(GRAY, 0.5f));
+            DrawText("Press ENTER to Skip", screenWidth - 250, screenHeight - 40, 20, Fade(GRAY, 0.5f));
         }
         break;
 
@@ -729,16 +691,22 @@ int main(void)
                             int pathIndex = GetRandomValue(0, (int)currentLevel->paths.size() - 1);
                             std::vector<Vector2>* chosenPath = currentLevel->paths[pathIndex];
 
+                            // Texture Seçimi
                             Texture2D currentEnemyTex = texOrc;
                             if (w.enemyType == EnemyType::URUK) currentEnemyTex = texUruk;
                             else if (w.enemyType == EnemyType::TROLL) currentEnemyTex = texTroll;
                             else if (w.enemyType == EnemyType::GROND) currentEnemyTex = texGrond;
                             else if (w.enemyType == EnemyType::NAZGUL) currentEnemyTex = texNazgul;
 
+                            // --- DİNAMİK ZORLUK HESAPLAMASI (GÜNCELLENEN KISIM) ---
+                            // Her seviye numarası için düşmana +20 ekstra can eklenir.
+                            // Örn: Level 1 -> +20 Can, Level 4 -> +80 Can
+                            int dynamicHealth = w.healthBonus + (currentLevel->levelID * 15);
+
                             // DÜŞMANI OLUŞTUR
                             enemies.push_back(Enemy(w.enemyType, chosenPath,
                                 currentEnemyTex,
-                                w.speedMultiplier, w.healthBonus));
+                                w.speedMultiplier, dynamicHealth)); // w.healthBonus yerine dynamicHealth kullanıldı
 
                             // BOSS KONTROLÜ
                             if (w.enemyType == EnemyType::NAZGUL) {
@@ -814,7 +782,7 @@ int main(void)
                     // [DENGELEME] Düşman öldüğünde kazanılan altın
                     gold += 15;
 
-                    urukBlood += enemies[i].GetManaReward();
+                    urukBlood += (int)(enemies[i].GetManaReward() * 0.5f);
                     if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
                     Audio::PlaySFX("orc_death", 0.1f, GetRandomValue(80, 120) / 100.0f);
                     Audio::PlaySFX("gold_gain", 0.1f, 1.0f + GetRandomValue(0, 2) / 10.0f);
@@ -833,15 +801,52 @@ int main(void)
                     }
                 }
             }
-            for (int i = 0; i < riders.size(); i++) {
+            for (int i = 0; i < (int)riders.size(); i++) {
                 riders[i].Update(dt);
+
                 for (Enemy& e : enemies) {
                     if (e.IsAlive() && CheckCollisionCircles(riders[i].position, 30, e.GetPosition(), 20)) {
-                        e.TakeDamage(100); bloodSystem.Spawn(e.GetPosition());
-                        if (!e.IsAlive()) { urukBlood += e.GetManaReward(); if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD; }
+
+                        float damageRate = 0.0f;
+
+                        // 1. BOSS KONTROLÜ
+                        if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) {
+                            damageRate = 0.008f; // Bosslara %0.8 Hasar
+                        }
+                        else {
+                            damageRate = 0.02f;  // Normallere %2 Hasar
+                        } // <-- BURADAKİ KAPATMA PARANTEZİ EKSİK OLABİLİR
+
+                        // Hasarı Hesapla
+                        int damage = (int)(e.GetHealth() * damageRate);
+                        if (damage < 1) damage = 1;
+
+                        e.TakeDamage(damage);
+
+                        // Efekt
+                        if (GetRandomValue(0, 4) == 0) {
+                            bloodSystem.Spawn(e.GetPosition());
+                        }
+
+                        // Ödül
+                        if (!e.IsAlive()) {
+                            if (e.GetType() == EnemyType::NAZGUL || e.GetType() == EnemyType::TROLL) {
+                                gold += 50;
+                                urukBlood += 20;
+                            }
+                            else {
+                                gold += 3;
+                                urukBlood += (int)(e.GetManaReward() * 0.1f);
+                            }
+                            if (urukBlood > MAX_BLOOD) urukBlood = MAX_BLOOD;
+                        }
                     }
                 }
-                if (!riders[i].active) { riders.erase(riders.begin() + i); i--; }
+
+                if (!riders[i].active) {
+                    riders.erase(riders.begin() + i);
+                    i--;
+                }
             }
             for (Tower& t : towers) t.Update(dt, enemies, projectiles);
             for (int i = 0; i < projectiles.size(); i++) {

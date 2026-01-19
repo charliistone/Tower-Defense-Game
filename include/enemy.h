@@ -28,6 +28,7 @@ public:
     }
     int GetManaReward() const { return manaReward; }
     int GetDamage() const { return damage; }
+    int GetHealth() const { return health; }
     EnemyType GetType() const { return type; }
 
 private:
