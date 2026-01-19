@@ -6,19 +6,19 @@
 #include "Audio.h" 
 #include <vector>
 #include <string>
-#include <algorithm> // MIN için gerekli olabilir ama biz makro yazacağız
+#include <algorithm> 
 
-// --- YARDIMCI MAKRO ---
+
 #define MIN(a, b) ((a)<(b)?(a):(b))
 
-// --- OYUN DURUMLARI ---
+
 enum class GameScreen { TITLE, LEVEL_SELECT, LEVEL_INTRO, GAMEPLAY, VICTORY, GAMEOVER };
 
-// --- AYARLAR ---
+
 const int TILE_SIZE = 64;
 const int MAP_ROWS = 12;
 
-// --- WAVE YAPISI ---
+
 struct EnemyWave {
     int enemyCount;
     EnemyType enemyType;
@@ -27,7 +27,7 @@ struct EnemyWave {
     int healthBonus;
 };
 
-// --- LEVEL YAPISI ---
+
 struct LevelData {
     int levelID;
     const char* name;
@@ -47,7 +47,7 @@ struct LevelData {
     std::vector<std::string> storyLines;
 };
 
-// --- RECURSIVE PATH FINDER ---
+
 void FindAllPathsRecursive(int x, int y, int cols, int rows,
     std::vector<std::vector<int>>& tileMap,
     std::vector<Vector2> currentPath,
@@ -79,7 +79,7 @@ void FindAllPathsRecursive(int x, int y, int cols, int rows,
     tileMap[y][x] = originalValue;
 }
 
-// --- DİNAMİK YOL BULUCU ---
+
 std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::vector<int>>& map) {
     std::vector<std::vector<Vector2>*> allPaths;
     if (map.empty()) return allPaths;
@@ -99,7 +99,7 @@ std::vector<std::vector<Vector2>*> GeneratePathsFromMap(const std::vector<std::v
     return allPaths;
 }
 
-// --- UI BUTON (Mouse Pozisyonu Parametresi Eklendi) ---
+
 bool GuiButton(Rectangle rect, const char* text, Texture2D texNormal, Texture2D texHover, Vector2 mousePos) {
     bool hover = CheckCollisionPointRec(mousePos, rect);
     bool clicked = false;
@@ -201,14 +201,14 @@ const int MAX_BLOOD = 100;
 const int COST_GANDALF = 40;
 const int COST_ROHIRRIM = 60;
 
-// --- MAIN ---
+
 int main(void)
 {
-    // [FIX 1] Sanal ekran boyutlarını tanımladık
+    
     const int gameScreenWidth = 1280;
     const int gameScreenHeight = 720;
 
-    // Pencere başlangıç boyutu
+   
     int screenWidth = 1280;
     int screenHeight = 720;
 
@@ -218,11 +218,11 @@ int main(void)
 
     Audio::Init();
 
-    // Sanal Ekran (RenderTexture)
+   
     RenderTexture2D target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
-    // SESLERİ YÜKLE
+   
     Audio::LoadMusic("music_menu", "assets/sounds/menu_theme.mp3");
     Audio::LoadMusic("music_level1", "assets/sounds/music_level1.mp3");
     Audio::LoadMusic("music_level2", "assets/sounds/music_level2.wav");
@@ -253,7 +253,7 @@ int main(void)
     Audio::LoadSFX("orc_walk", "assets/sounds/orc_walk.wav");
     Audio::LoadSFX("heavy_walk", "assets/sounds/grond_walk.wav");
 
-    // GÖRSELLERİ YÜKLE
+   
     Texture2D texMenuBg = LoadTexture("assets/ui/menu_bg.png");
     Texture2D texVictoryBg = LoadTexture("assets/ui/victory_bg.png");
     Texture2D texDefeatBg = LoadTexture("assets/ui/defeat_bg.png");
@@ -292,7 +292,7 @@ int main(void)
     Camera2D camera = { 0 }; camera.zoom = 1.0f;
     std::vector<LevelData> allLevels;
 
-    // --- LEVEL 1: OUTSKIRTS ---
+   
     {
         LevelData lvl; lvl.levelID = 1; lvl.name = "Level 1: Outskirts";
         lvl.background = LoadTexture("assets/sprites/environment/minastirith_bg.png");
@@ -333,7 +333,7 @@ int main(void)
         allLevels.push_back(lvl);
     }
 
-    // --- LEVEL 2 ---
+    
     {
         LevelData lvl; lvl.levelID = 2; lvl.name = "Level 2: Long Road";
         lvl.background = LoadTexture("assets/sprites/environment/lvl2_bg.png");
@@ -375,7 +375,7 @@ int main(void)
         allLevels.push_back(lvl);
     }
 
-    // --- LEVEL 3 ---
+    
     {
         LevelData lvl; lvl.levelID = 3; lvl.name = "Level 3: The Siege";
         lvl.background = LoadTexture("assets/sprites/environment/lvl3_bg.png");
@@ -453,10 +453,10 @@ int main(void)
     {
         float dt = GetFrameTime();
 
-        // [FIX] Ekran ölçekleme (Scale) hesabı
+        
         float scale = MIN((float)GetScreenWidth() / gameScreenWidth, (float)GetScreenHeight() / gameScreenHeight);
 
-        // [FIX] Sanal Mouse Hesabı
+       
         Vector2 mouseRaw = GetMousePosition();
         Vector2 virtualMouse = { 0 };
         float offsetX = (GetScreenWidth() - (gameScreenWidth * scale)) * 0.5f;
@@ -468,7 +468,7 @@ int main(void)
         Vector2 mouseScreenPos = virtualMouse;
         Vector2 mouseWorldPos = GetScreenToWorld2D(mouseScreenPos, camera);
 
-        // F11 Tam Ekran
+        
         if (IsKeyPressed(KEY_F11)) {
             int monitor = GetCurrentMonitor();
             if (IsWindowFullscreen()) {
@@ -483,11 +483,11 @@ int main(void)
 
         Audio::Update();
 
-        // [FIX] Çizimi Sanal Ekrana Başlat
+        
         BeginTextureMode(target);
         ClearBackground(RAYWHITE);
 
-        // --- MÜZİK ---
+        
         switch (currentScreen)
         {
         case GameScreen::TITLE:
@@ -519,7 +519,7 @@ int main(void)
             break;
         }
 
-        // --- OYUN AKIŞI ---
+      
         switch (currentScreen)
         {
         case GameScreen::TITLE:
@@ -527,7 +527,7 @@ int main(void)
             else DrawRectangleGradientV(0, 0, gameScreenWidth, gameScreenHeight, DARKBLUE, BLACK);
             DrawText("SIEGE OF GONDOR", gameScreenWidth / 2 - MeasureText("SIEGE OF GONDOR", 60) / 2, 150, 60, GOLD);
 
-            // [FIX] mouseScreenPos parametresini ekledik
+           
             if (GuiButton({ (float)gameScreenWidth / 2 - 100, 400, 200, 50 }, "PLAY GAME", texBtnNormal, texBtnHover, mouseScreenPos)) currentScreen = GameScreen::LEVEL_SELECT;
             if (GuiButton({ (float)gameScreenWidth / 2 - 100, 470, 200, 50 }, "EXIT", texBtnNormal, texBtnHover, mouseScreenPos)) { CloseWindow(); return 0; }
             break;
@@ -541,7 +541,7 @@ int main(void)
                 for (int i = 0; i < allLevels.size(); i++) {
                     float x = (float)gameScreenWidth / 2 - btnWidth / 2;
                     float y = (float)startY + i * (btnHeight + gap);
-                    // [FIX] mouseScreenPos parametresini ekledik
+                    
                     if (GuiButton({ x, y, (float)btnWidth, (float)btnHeight }, allLevels[i].name, texBtnNormal, texBtnHover, mouseScreenPos)) {
                         currentLevel = &allLevels[i];
                         gold = currentLevel->startGold;
@@ -783,24 +783,21 @@ int main(void)
 
             BeginMode2D(camera);
 
-            // --- ARKA PLAN ÇİZİMİ (DÜZELTİLMİŞ HALİ) ---
+           
             if (currentLevel->background.id > 0) {
-                // Dokunun tekrar etmesini sağla
+               
                 SetTextureWrap(currentLevel->background, TEXTURE_WRAP_REPEAT);
 
-                // 1. Kaynak (Source):
-                // Genişliği 'mapWidth' yapıyoruz ki texture o kadar mesafe boyunca kendini tekrar etsin.
+              
                 Rectangle sourceRec = { 0, 0, (float)currentLevel->mapWidth, (float)currentLevel->background.height };
 
-                // 2. Hedef (Destination):
-                // Ekranda kaplayacağı alan. Burası da 'mapWidth' olmalı ki haritanın sonuna kadar gitsin.
-                // Yüksekliği 'gameScreenHeight' yapıyoruz ki ekranı dikeyde doldursun.
+               
                 Rectangle destRec = { 0, 0, (float)currentLevel->mapWidth, (float)gameScreenHeight };
 
                 DrawTexturePro(currentLevel->background, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
             }
             else {
-                // Resim yoksa düz renk bas
+                
                 DrawRectangle(0, 0, currentLevel->mapWidth, gameScreenHeight, currentLevel->bgColor);
             }
 
@@ -907,7 +904,7 @@ int main(void)
             DrawText("[Q] GANDALF", rightX + 130, uiBarY - 5, 20, cQ);
             DrawText("[W] ROHIRRIM", rightX + 280, uiBarY - 5, 20, cW);
 
-            // [FIX] mouseScreenPos parametresini ekledik
+           
             if (GuiButton({ (float)gameScreenWidth - 120, 10, 100, 30 }, "MENU", texBtnNormal, texBtnHover, mouseScreenPos)) {
                 currentScreen = GameScreen::TITLE;
             }
@@ -934,7 +931,7 @@ int main(void)
             DrawRectangle(0, 0, gameScreenWidth, gameScreenHeight, Fade(RED, 0.2f));
             DrawText("DEFEAT", gameScreenWidth / 2 - MeasureText("DEFEAT", 80) / 2, gameScreenHeight / 2 - 100, 80, RED);
             DrawText("The White City has Fallen.", gameScreenWidth / 2 - MeasureText("The White City has Fallen.", 30) / 2, gameScreenHeight / 2, 30, RAYWHITE);
-            // [FIX] mouseScreenPos parametresini ekledik
+            
             if (GuiButton({ (float)gameScreenWidth / 2 - 100, (float)gameScreenHeight / 2 + 80, 200, 50 }, "MAIN MENU", texBtnNormal, texBtnHover, mouseScreenPos)) {
                 Audio::StopMusic();
                 currentScreen = GameScreen::TITLE;
@@ -942,9 +939,7 @@ int main(void)
             break;
         }
 
-        EndTextureMode(); // [FIX] Sanal ekrana çizim bitti
-
-        // --- GERÇEK EKRANA ÇİZİM ---
+        EndTextureMode(); 
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -953,9 +948,9 @@ int main(void)
         DrawTexturePro(target.texture, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
 
         EndDrawing();
-    } // While döngüsü sonu
+    } 
 
-    // --- TEMİZLİK ---
+   
     UnloadTexture(texOrc); UnloadTexture(texUruk); UnloadTexture(texTroll); UnloadTexture(texGrond); UnloadTexture(texCommander);
     UnloadTexture(texTowerArcher); UnloadTexture(texTowerMelee); UnloadTexture(texTowerIce);
     UnloadTexture(texMenuBg); UnloadTexture(texBtnNormal); UnloadTexture(texBtnHover);
