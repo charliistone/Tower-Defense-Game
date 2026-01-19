@@ -7,7 +7,7 @@ enum class EnemyType { ORC, URUK, TROLL, GROND, COMMANDER, NAZGUL };
 
 class Enemy {
 public:
-    // ZORLUK SİSTEMİ: speedMult (Hız Çarpanı) ve hpBonus (Ekstra Can) eklendi
+    
     Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float speedMult = 1.0f, int hpBonus = 0);
 
     void Update(float dt);
@@ -22,7 +22,7 @@ public:
     Vector2 GetPosition() const { return position; }
     float GetRadius() const {
         if (type == EnemyType::GROND) return 60.0f;
-        if (type == EnemyType::NAZGUL) return 40.0f; // <-- Nazgul Hitbox
+        if (type == EnemyType::NAZGUL) return 40.0f; 
         if (type == EnemyType::TROLL) return 30.0f;
         return 15.0f;
     }
@@ -51,7 +51,6 @@ private:
     bool frozen;
     int damage;
 
-    // Animasyon Değişkenleri
     int frameWidth;
     int frameHeight;
     int currentFrame;
