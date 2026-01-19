@@ -6,31 +6,31 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
     manaReward(0), stunTimer(0.0f), slowTimer(0.0f), slowFactor(1.0f), frozen(false),
     currentFrame(0), animTimer(0.0f), facing(0)
 {
-    // Başlangıç pozisyonu
+    
     if (path && !path->empty()) position = (*path)[0];
 
-    // Temel Özellikler
+    
     if (type == EnemyType::ORC) {
         maxHealth = 20; speed = 120.0f; manaReward = 5;
-        damage = 10; // hasarı belirler
+        damage = 10; 
     }
     else if (type == EnemyType::URUK) {
         maxHealth = 50; speed = 90.0f; manaReward = 10;
-        damage = 25; // hasarı belirler
+        damage = 25; 
     }
     else if (type == EnemyType::TROLL) {
         maxHealth = 300; speed = 50.0f; manaReward = 50;
-        damage = 100; // hasarı belirler
+        damage = 100; 
     }
     else if (type == EnemyType::GROND) {
         maxHealth = 1000; speed = 25.0f;manaReward = 500; 
         damage = 500; 
     }
     else if (type == EnemyType::NAZGUL) {
-        maxHealth = 2500; // Grond'dan bile fazla can
-        speed = 50.0f;    // Grond'dan hızlı (Uçuyor/Atlı)
+        maxHealth = 2500; 
+        speed = 50.0f;    
         manaReward = 1000;
-        damage = 9999;    // Dokunduğu an oyun biter
+        damage = 9999;    
     }
     else if (type == EnemyType::COMMANDER) {
         maxHealth = 600;  
@@ -39,12 +39,12 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
         damage = 50;      
     }
 
-    // --- ZORLUK AYARLAMASI ---
-    maxHealth += hpBonus;       // Level bonusunu ekle
-    health = maxHealth;         // Canı fulle
-    speed *= speedMult;         // Hız çarpanını uygula
+    
+    maxHealth += hpBonus;       
+    health = maxHealth;         
+    speed *= speedMult;        
 
-    // Sprite Ayarları (3x4 Grid varsayımı)
+   
     frameWidth = texture.width / 3;
     frameHeight = texture.height / 4;
 }
@@ -52,7 +52,7 @@ Enemy::Enemy(EnemyType type, std::vector<Vector2>* path, Texture2D tex, float sp
 void Enemy::Update(float dt) {
     if (!alive) return;
 
-    // Hız ve Efekt Kontrolü
+   
     float actualSpeed = speed;
     if (stunTimer > 0.0f) {
         stunTimer -= dt;
@@ -67,21 +67,21 @@ void Enemy::Update(float dt) {
         }
     }
 
-    // Hareket Mantığı
+   
     if (path && currentPoint < path->size()) {
         Vector2 target = (*path)[currentPoint];
         Vector2 dir = Vector2Subtract(target, position);
         float dist = Vector2Length(dir);
 
-        // Yön Belirleme (Animasyon İçin)
+        
         if (fabs(dir.x) > fabs(dir.y)) {
-            facing = (dir.x > 0) ? 2 : 1; // 2: Sağ, 1: Sol
+            facing = (dir.x > 0) ? 2 : 1; 
         }
         else {
-            facing = (dir.y > 0) ? 0 : 3; // 0: Aşağı, 3: Yukarı
+            facing = (dir.y > 0) ? 0 : 3; 
         }
 
-        // İlerleme
+        
         float moveStep = actualSpeed * dt;
         if (dist <= moveStep) {
             position = target;
@@ -94,7 +94,7 @@ void Enemy::Update(float dt) {
             distanceTraveled += moveStep;
         }
 
-        // Animasyon
+        
         if (actualSpeed > 0) {
             animTimer += dt;
             if (animTimer >= 0.2f) {
@@ -114,14 +114,14 @@ void Enemy::Draw() const {
     else if (type == EnemyType::GROND) drawSize = 100.0f;
     else if (type == EnemyType::NAZGUL) drawSize = 130.0f; 
     else if (type == EnemyType::COMMANDER) {
-        drawSize = 60.0f; // Standart (48) askerlerden büyük, Troll (64) kadar
+        drawSize = 60.0f; 
     }
 
     Rectangle source;
     if (texture.width == texture.height) { // Tek kare resimse
         source = { 0, 0, (float)texture.width, (float)texture.height };
     }
-    else { // Sprite sheet ise
+    else { 
         source = { (float)currentFrame * frameWidth, (float)facing * frameHeight, (float)frameWidth, (float)frameHeight };
     }
 
@@ -134,7 +134,7 @@ void Enemy::Draw() const {
 
     DrawTexturePro(texture, source, dest, origin, 0.0f, tint);
 
-    // Can Barı
+   
 
     int offset = 15;
     if (type == EnemyType::GROND) offset = 40;
