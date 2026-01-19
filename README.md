@@ -50,3 +50,57 @@ All external assets are royalty-free and sourced from the following providers:
     * [OpenGameArt](https://opengameart.org)
 * **Fonts:**
     * [DaFont](https://www.dafont.com)
+ 
+# 🏰 Siege of Gondor
+
+A strategy-based **Tower Defense Game** developed in **C**, inspired by the legendary world of *The Lord of the Rings*.
+
+### 📜 The Story
+As fans of LOTR series, we designed a story that stays true to the epic defense of Gondor. As the Lord of Gondor, you must protect the main tower from the relentless assault of Sauron's forces.
+
+---
+
+### 🎮 Gameplay & Objective
+* **Goal:** Defend the main tower against **20 waves** of enemies.
+* **Victory:** Survive all 20 waves.
+* **Defeat:** If the main tower falls before the 20th wave, it's Game Over.
+* **Economy:** Earn coins by slaying enemies to build or upgrade your defenses.
+
+### 🏹 Defense Towers
+You can build and upgrade three types of towers using the numeric keys:
+
+| Key | Tower Type | Description |
+| :---: | :--- | :--- |
+| `1` | **ARCHER** | High attack speed, moderate damage. |
+| `2` | **MELEE** | Heavy damage at close range. |
+| `3` | **ICE** | Deals damage and **slows down** enemies. |
+
+> [!TIP]
+> Click on an existing tower to **upgrade** it if you have enough coins!
+
+### 👹 The Enemy Horde
+The forces of darkness come in three ranks, each with unique health and speed stats:
+* **Orc:** Fast but weak.
+* **Uruk:** Balanced strength and speed.
+* **Troll:** Slow moving but massive health pools.
+
+### ✨ Special Abilities
+Inspired by iconic movie scenes, you have two legendary powers at your disposal:
+
+* **Gandalf (Key: `Q`)**: *"You Shall Not Pass!"* – Instantly freezes all enemies in their current position.
+* **Rohirrim (Key: `W`)**: Call for the cavalry! – A devastating charge that wipes out enemies on the path, just like the films.
+
+---
+
+## Project Team & Contact Info
+
+This project was developed by the following team members. Click on numbers or email addresses to contact.
+
+| Name Surname | GitHub | Email |
+| :--- | :---: | :--- |
+| Ahmet Can Cengiz | [🔗 Profil](https://github.com/charliistone) | [📧 s220201023@ankarabilim.edu.tr](mailto:s220201023@ankarabilim.edu.tr) |
+| Ahmet Said Kuruoğlu | [🔗 Profil](https://github.com/kullaniciadi) | [📧 s220204008@ankarabilim.edu.tr](mailto:s220204008@ankarabilim.edu.tr) |
+| Anday Turgut| [🔗 Profil](https://github.com/andayk) | [📧 s220204050@ankarabilim.edu.tr](mailto:s220204050@ankarabilim.edu.tr) |
+| Bartu Turgut | [🔗 Profil](https://github.com/bartu33) | [📧 s220201032@ankarabilim.edu.tr](mailto:s220201032@ankarabilim.edu.tr) |
+| Salih Aydos | [🔗 Profil](https://github.com/LordChancelor) | [📧 s220204002@ankarabilim.edu.tr](mailto:s220204002@ankarabilim.edu.tr) |
+| Mustafa Kayalıca | [🔗 Profil](https://github.com/kullaniciadi) | [📧 s220201014@ankarabilim.edu.tr](mailto:s220201014@ankarabilim.edu.tr) |
