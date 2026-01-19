@@ -8,7 +8,7 @@ enum class TowerType { ARCHER, MELEE, ICE };
 
 class Tower {
 public:
-    // Constructor artık 'projTex' (Mermi Resmi) istiyor
+    
     Tower(Vector2 pos, Texture2D tex, Texture2D projTex, TowerType type);
 
     void Update(float dt, std::vector<Enemy>& enemies, std::vector<Projectile>& projectiles);
@@ -23,7 +23,7 @@ public:
 private:
     Vector2 position;
     Texture2D texture;
-    Texture2D projTexture; // Mermi resmini burada saklayacağız
+    Texture2D projTexture; 
     TowerType type;
 
     int level;
