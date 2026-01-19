@@ -70,11 +70,11 @@ The project is configured as a Visual Studio Solution.
 | Name Surname | GitHub Profile | Contact |
 | :--- | :--- | :--- |
 | Ahmet Can Cengiz | [charliistone](https://github.com/charliistone) | s220201023@ankarabilim.edu.tr |
-| Ahmet Said Kuruoğlu | [Profile](https://github.com/kullaniciadi) | s220204008@ankarabilim.edu.tr |
+| Ahmet Said Kuruoğlu | [Merchrior](https://github.com/Merchrior) | s220204008@ankarabilim.edu.tr |
 | Anday Turgut | [andayk](https://github.com/andayk) | s220204050@ankarabilim.edu.tr |
 | Bartu Turgut | [bartu33](https://github.com/bartu33) | s220201032@ankarabilim.edu.tr |
 | Salih Aydos | [LordChancelor](https://github.com/LordChancelor) | s220204002@ankarabilim.edu.tr |
-| Mustafa Kayalıca | [Profile](https://github.com/kullaniciadi) | s220201014@ankarabilim.edu.tr |
+| Mustafa Kayalıca | [Kayalicaa](https://github.com/Kayalicaa) | s220201014@ankarabilim.edu.tr |
 
 ## Credits & Assets
 All external assets used in this project are sourced from the following providers:
